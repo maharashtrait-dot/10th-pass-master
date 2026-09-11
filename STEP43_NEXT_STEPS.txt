@@ -1,0 +1,14 @@
+STEP 43 — SAFE REPEATED PYQ ANALYSIS
+
+The 2025 Mathematics-I paper is already imported as 27 ACTUAL_PYQ records.
+This step fixes repeated-PYQ analysis so a question is called REPEATED only when the same normalized question is verified in at least TWO different exam years.
+
+NEXT:
+1. Restart backend.
+2. Admin -> Ctrl+F5.
+3. STEP 36 -> CHECK PYQ STATUS.
+4. Click RUN REPEATED PYQ ANALYSIS.
+5. With only 2025 loaded, expected result is 0 cross-year repeated groups. That is correct.
+6. Click LOAD REPEATED PYQ REPORT.
+
+Do not re-import the 27 questions.

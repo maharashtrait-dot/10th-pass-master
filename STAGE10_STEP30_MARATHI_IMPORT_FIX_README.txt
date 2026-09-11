@@ -1,0 +1,1 @@
+Marathi import fix: bundled CSV uses subject name "Marathi Kumarbharati" while official DB subject master uses "Marathi". Importer maps Marathi Kumarbharati to Marathi before chapter lookup. No question content is changed.

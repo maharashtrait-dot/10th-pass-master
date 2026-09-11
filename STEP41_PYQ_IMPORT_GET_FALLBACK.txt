@@ -1,0 +1,5 @@
+STEP 41 — PYQ IMPORT GET FALLBACK
+
+The bundled 2025 Mathematics-I import button now uses a GET endpoint.
+This avoids local browser POST/CORS/body parsing issues that caused "Failed to fetch".
+Use the bundled button only; no CSV selection is required.

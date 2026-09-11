@@ -1,0 +1,26 @@
+STEP 48 FIX — 2024 Mathematics-I PYQ import
+
+Problem seen in Admin:
+2024 Mathematics-I: New 1 • Upgraded/Verified 0 • Failed 26
+Row 2: could not determine data type of parameter $2
+Rows after Row 2: current transaction is aborted...
+
+Root cause:
+The bundled GET importer used a PostgreSQL query where a parameter could be left with an ambiguous type on some local database schemas. Also, one row error aborted the transaction, causing all later rows to fail.
+
+Fix:
+1. Explicit PostgreSQL casts are used for chapter-number/name parameters.
+2. Every row uses its own SAVEPOINT, so one bad row cannot abort all remaining imports.
+3. The importer still verifies the official 2024 Mathematics-I March English package and marks successful rows as ACTUAL_PYQ + pyq_verified=TRUE.
+4. Admin cache bumped to v48.
+
+After replacing the project files:
+- Restart backend.
+- Ctrl+F5 in browser.
+- Click: IMPORT VERIFIED 2024 MATHEMATICS-I (27 PYQs)
+
+Expected if database has none of these 27 questions:
+New 27 • Upgraded/Verified 0 • Failed 0
+
+If some matching records already exist:
+New + Upgraded/Verified should total 27, with Failed 0.

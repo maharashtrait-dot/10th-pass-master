@@ -1,0 +1,20 @@
+STEP 37 QUICK TEST
+
+1. Start the existing MahaCHS-independent 10th PASS MASTER backend exactly as in previous steps.
+2. Open /admin.html.
+3. Open STEP 37 Official PYQ Extraction Workspace.
+4. Select subject + year + official paper PDF.
+5. Click EXTRACT QUESTIONS FROM PDF.
+6. Confirm question rows and chapter suggestions appear.
+7. Enter/verify answer in a row; chapter number and visual tag can also be corrected.
+8. Select reviewed rows.
+9. Click IMPORT REVIEWED AS ACTUAL PYQ.
+10. Click RUN REPEATED PYQ ANALYSIS.
+11. Click LOAD REPEATED PYQ REPORT.
+12. STEP 36 PYQ status should now include ACTUAL_PYQ / PYQ_REPEATED counts.
+
+EXPECTED SAFETY
+- A scanned/image-only PDF should NOT silently become ACTUAL_PYQ.
+- Missing answer should block ACTUAL_PYQ import.
+- Missing chapter mapping should block ACTUAL_PYQ import.
+- Existing practice questions are never automatically relabelled as ACTUAL_PYQ.

@@ -1,0 +1,23 @@
+10th PASS MASTER - STEP 66 FINAL QA / RELEASE CANDIDATE
+
+Status: Release Candidate
+
+Static checks completed:
+- backend/server.js syntax: PASS
+- frontend/script.js syntax: PASS
+- Student Dashboard PASS Preparation Target code: PRESENT
+- Smart Study Center: PRESENT
+- Smart Learn: PRESENT
+- Smart Revision: PRESENT
+- PYQ Master: PRESENT
+- Verified PYQ Practice: PRESENT
+- Weak Chapter Practice: PRESENT
+- /api/health endpoint: PRESENT
+
+Important:
+- Existing PostgreSQL database is not modified by this package.
+- Keep backend/.env private; do not publish it to GitHub.
+- Start backend from the backend folder or use START_SERVER.bat.
+- Open the student app through http://localhost:3001 rather than double-clicking frontend/index.html.
+
+This package is a release candidate. Online hosting/deployment still requires a hosting account and database configuration.

@@ -1,0 +1,20 @@
+10th PASS MASTER — STEP 49
+2024 Mathematics-I PYQ Import Error Fix
+
+Problem fixed:
+The 2024 Mathematics-I bundled import was showing:
+"could not determine data type of parameter $2"
+and then subsequent rows failed because the PostgreSQL transaction was aborted.
+
+Fix:
+1. Added explicit PostgreSQL parameter casts (::text, ::int).
+2. Added SAVEPOINT per question row so one failed row cannot abort the remaining rows.
+3. Kept the verified 27-question 2024 Mathematics-I package unchanged.
+4. Existing matching questions are upgraded/verified as ACTUAL_PYQ.
+
+After replacing the project files:
+- restart backend
+- Ctrl+F5 in browser
+- click IMPORT VERIFIED 2024 MATHEMATICS-I (27 PYQs)
+
+Expected: 27 imported/upgraded and 0 failed (unless a local database has missing/incompatible schema data).

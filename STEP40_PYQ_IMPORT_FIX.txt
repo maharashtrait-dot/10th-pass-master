@@ -1,0 +1,5 @@
+STEP 40 — PYQ IMPORT FIX
+The 27 verified March 2025 Mathematics-I English PYQs are now embedded directly in admin.js.
+The import button no longer fetches a local JSON file, so it will work even when Admin is opened from a different frontend port.
+After replacing files: restart backend, Ctrl+F5 Admin, click CHECK PYQ STATUS, then click IMPORT 2025 MATH-I — 27 VERIFIED PYQs.
+Expected final year count: 2025 = 27 (some may be New, some Upgraded/Verified).

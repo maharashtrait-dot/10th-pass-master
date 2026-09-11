@@ -1,0 +1,7 @@
+STEP 47 — PYQ YEAR COVERAGE & 2024 INTAKE
+
+2025 Mathematics-I has 27 verified ACTUAL_PYQ records.
+This step adds a year-coverage dashboard and a guided 2024 intake panel.
+Official source: https://mahahsscboard.in/question-paper
+Do not mark questions as ACTUAL_PYQ without verification against an official paper.
+Repeated PYQ analysis should be run only after at least two verified years exist.

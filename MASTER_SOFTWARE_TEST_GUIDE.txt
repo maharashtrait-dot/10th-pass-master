@@ -1,0 +1,74 @@
+10th PASS MASTER — STAGE 10 STEP 30
+MASTER SOFTWARE TEST / FINAL VERIFICATION
+
+Purpose:
+Before adding new features, verify that the existing application is structurally correct and works with the local PostgreSQL database and browser.
+
+PART A — Automatic file/syntax test
+1. Open Command Prompt in the project folder.
+2. Run:
+   node tools/master-software-test.js
+3. Every important line should show PASS.
+4. If it says FAIL, do not continue to new feature development; send me the exact FAIL lines.
+
+PART B — Backend + PostgreSQL live test
+1. Start PostgreSQL.
+2. Open pgAdmin and confirm database MahaCHS is available.
+3. Open Command Prompt in the backend folder.
+4. Start the backend using the same command you have been using successfully (for example: node server.js).
+5. Confirm the terminal shows the backend listening/working and PostgreSQL connected.
+6. Keep this window open.
+
+PART C — Student browser test
+Open the student index.html through the same local method used previously.
+Test in this order:
+1. New student login with name + 10 digit mobile.
+2. Logout.
+3. Login again with the same mobile — it should say Welcome back.
+4. Open subjects.
+5. Open a chapter.
+6. Open a question.
+7. Test Hint / Easy Answer.
+8. Mark I Know This.
+9. Mark Need Revision.
+10. Refresh and confirm progress remains.
+11. Logout and login again; confirm progress remains.
+12. Open Smart Revision.
+13. Open 30-Day PASS Study Challenge.
+14. Complete one daily action and refresh; confirm completion remains.
+15. Open Mock Test.
+16. Complete an MCQ test only when MCQ-ready questions exist.
+17. Confirm score/result appears.
+18. Open Exam Analysis and confirm the test appears in history.
+
+PART D — Admin browser test
+1. Open admin.html.
+2. Confirm subjects/chapters load.
+3. Search a chapter.
+4. Open/manage questions.
+5. Add a test question only if needed; do not create duplicate production questions.
+6. Confirm edit/deactivate functions.
+7. Open Content Progress.
+8. Open Question Quality Audit.
+9. Open MCQ readiness/editor.
+10. Open Exam History.
+
+PART E — Database safety checks
+Do NOT delete production data.
+Use SELECT queries only for verification unless a specific repair is requested.
+Useful checks:
+- SELECT COUNT(*) FROM subjects;
+- SELECT COUNT(*) FROM chapters;
+- SELECT COUNT(*) FROM questions;
+- SELECT COUNT(*) FROM students;
+- SELECT COUNT(*) FROM mock_tests;
+
+IMPORTANT:
+The internal target of 20 active questions per chapter is an app content target, not an official Maharashtra Board passing requirement.
+
+What to send me after testing:
+A) The output of: node tools/master-software-test.js
+B) Any red/error message from the backend terminal
+C) A screenshot if a browser page does not behave correctly
+
+Then I will fix only the failed item before we add the next feature.

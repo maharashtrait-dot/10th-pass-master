@@ -1,0 +1,11 @@
+STEP 44 — REPEATED PYQ VISIBLE RESULT FIX
+
+The analysis route was working, but the result could appear below the visible part of the page or a failed JSON response could be swallowed. This version:
+- shows a running message immediately;
+- shows a large green SUCCESS result after completion;
+- clearly shows verified PYQs, years, repeated groups and repeated questions;
+- automatically explains that zero repeats is normal with only one verified year;
+- safely displays server errors instead of appearing to do nothing;
+- provides a report button after successful analysis.
+
+Next action: replace files, restart backend, Ctrl+F5, then click RUN REPEATED PYQ ANALYSIS once.

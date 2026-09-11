@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: tenth-pass-master
+    runtime: node
+    plan: free
+    buildCommand: cd backend && npm ci
+    startCommand: cd backend && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_SSL
+        value: "true"

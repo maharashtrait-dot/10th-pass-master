@@ -1,0 +1,1 @@
+STEP 45: Fixed missing frontend event handlers for RUN REPEATED PYQ ANALYSIS and LOAD REPEATED PYQ REPORT. The analysis now calls the existing backend endpoint and renders a visible result box.

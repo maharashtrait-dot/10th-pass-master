@@ -1,0 +1,8 @@
+STEP 42 — PYQ STATUS REPORT FIX
+
+IMPORTANT: The screenshot shows the import itself succeeded: ACTUAL_PYQ = 27.
+The displayed 2025 = 28 is a reporting mismatch because the old stats query counted any question_type=PYQ as well as ACTUAL_PYQ.
+This build changes the year report to count ONLY source_type=ACTUAL_PYQ, so the 2025 count will correctly show 27.
+
+Do NOT re-import the 27 PYQs. After replacing files and restarting the backend, use CHECK PYQ STATUS.
+Then proceed to RUN REPEATED PYQ ANALYSIS.

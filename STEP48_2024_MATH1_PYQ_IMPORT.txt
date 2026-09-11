@@ -1,0 +1,11 @@
+STEP 48 — March 2024 Mathematics-I PYQ intake
+
+This package contains 27 question/subquestion records verified against the user-uploaded official Maharashtra SSC Mathematics-I March 2024 English paper (N 619).
+
+The 27 records cover Q1(A/B), Q2(A/B), Q3(A/B), Q4(i-iii) and Q5(i-ii), mapped to the six Mathematics-I chapters.
+
+The paper is 11 pages, 40 marks, 2 hours.
+
+Import: replace the project with this ZIP, restart backend, hard-refresh Admin, then click “IMPORT VERIFIED 2024 MATHEMATICS-I (27 PYQs)”.
+
+The Q5(i) pie chart angles were read from the paper diagram: Football 45°, Cricket 160°, Kabaddi 55°, Hockey 100°.
