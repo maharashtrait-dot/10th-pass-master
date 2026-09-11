@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 160">
+<rect width="260" height="160" fill="white"/><text x="130" y="18" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold">Mineral Resources</text><path d="M30 125 L70 70 L105 110 L140 45 L180 95 L225 55 L225 130 L30 130Z" fill="none" stroke="black" stroke-width="2"/><circle cx="70" cy="70" r="5"/><circle cx="140" cy="45" r="5"/><circle cx="225" cy="55" r="5"/><text x="55" y="145" font-size="10">Coal</text><text x="125" y="145" font-size="10">Iron</text><text x="205" y="145" font-size="10">Oil</text>
+</svg>

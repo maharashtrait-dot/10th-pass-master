@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="190" viewBox="0 0 320 190">
+  <rect x="1" y="1" width="318" height="188" fill="white" stroke="black"/>
+  <circle cx="75" cy="70" r="28" fill="none" stroke="black" stroke-width="3"/>
+  <g stroke="black" stroke-width="2"><path d="M75 28v-14M75 112v14M33 70H19M131 70h14M45 40L35 30M105 100l10 10M105 40l10-10M45 100l-10 10"/></g>
+  <path d="M165 105c0-17 14-30 31-30 10-18 38-20 51-2 20-4 39 10 39 30 0 17-13 30-30 30h-61c-17 0-30-12-30-28z" fill="none" stroke="black" stroke-width="3"/>
+  <g stroke="black" stroke-width="2"><path d="M185 145l-8 20M212 145l-8 20M239 145l-8 20M266 145l-8 20"/></g>
+  <text x="160" y="178" font-family="Arial" font-size="13" fill="black">Weather = short-term condition</text>
+</svg>

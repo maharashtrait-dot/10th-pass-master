@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 160">
+<rect width="260" height="160" fill="white"/><text x="130" y="18" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold">Writing Format</text><rect x="55" y="35" width="150" height="100" fill="none" stroke="black" stroke-width="2"/><line x1="70" y1="55" x2="190" y2="55" stroke="black"/><line x1="70" y1="72" x2="180" y2="72" stroke="black"/><line x1="70" y1="89" x2="190" y2="89" stroke="black"/><line x1="70" y1="106" x2="165" y2="106" stroke="black"/><text x="130" y="125" text-anchor="middle" font-size="10">Opening → Body → Closing</text>
+</svg>

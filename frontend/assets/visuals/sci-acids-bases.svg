@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 160">
+<rect width="260" height="160" fill="white"/><text x="130" y="18" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold">Acids &amp; Bases</text><rect x="35" y="55" width="70" height="60" fill="none" stroke="black" stroke-width="2"/><rect x="155" y="55" width="70" height="60" fill="none" stroke="black" stroke-width="2"/><text x="55" y="88" font-size="13">ACID</text><text x="172" y="88" font-size="13">BASE</text><path d="M105 85 H155" stroke="black" stroke-width="2"/><path d="M143 77 L155 85 L143 93" fill="none" stroke="black" stroke-width="2"/>
+</svg>

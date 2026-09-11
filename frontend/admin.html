@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>10th PASS MASTER - Admin</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <!-- ========================================= -->
+    <!-- HEADER -->
+    <!-- ========================================= -->
+
+    <header>
+
+        <h1>🔐 10th PASS MASTER ADMIN</h1>
+
+        <p>
+            Maharashtra SSC Question Bank Management
+        </p>
+
+    </header>
+
+
+    <!-- ========================================= -->
+    <!-- WELCOME -->
+    <!-- ========================================= -->
+
+    <section class="welcome">
+
+        <h2>➕ Add New Question</h2>
+
+        <p>
+            Select Subject and Chapter, then add the question.
+        </p>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- SUBJECT -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminSubject">
+
+            📚 Subject
+
+        </label>
+
+
+        <select id="adminSubject">
+
+            <option value="">
+
+                Select Subject
+
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- CHAPTER -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminChapter">
+
+            📖 Chapter
+
+        </label>
+
+
+        <select id="adminChapter">
+
+            <option value="">
+
+                Select Chapter
+
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- PYQ PAPER -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="questionPaper">
+
+            📚 PYQ Paper (Optional)
+
+        </label>
+
+
+        <select id="questionPaper">
+
+            <option value="">
+
+                -- Select PYQ Paper --
+
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- QUESTION -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminQuestion">
+
+            ❓ Question
+
+        </label>
+
+
+        <textarea
+            id="adminQuestion"
+            rows="4"
+            placeholder="Enter question"
+        ></textarea>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- MARKS -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminMarks">
+
+            🔢 Marks
+
+        </label>
+
+
+        <input
+            type="number"
+            id="adminMarks"
+            value="1"
+            min="1"
+        >
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- PYQ YEAR -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminPyqYear">
+
+            📅 PYQ Year
+
+        </label>
+
+
+        <input
+            type="number"
+            id="adminPyqYear"
+            placeholder="Example: 2025"
+        >
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- HINT -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminHint">
+
+            💡 Hint
+
+        </label>
+
+
+        <textarea
+            id="adminHint"
+            rows="3"
+            placeholder="Easy hint for weak students"
+        ></textarea>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- EASY ANSWER -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminEasyAnswer">
+
+            ✍ Easy Answer
+
+        </label>
+
+
+        <textarea
+            id="adminEasyAnswer"
+            rows="6"
+            placeholder="Write an easy-to-remember answer"
+        ></textarea>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- KEYWORDS -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminKeywords">
+
+            🔑 Keywords
+
+        </label>
+
+
+        <input
+            type="text"
+            id="adminKeywords"
+            placeholder="Example: definition, formula, important words"
+        >
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- QUESTION TYPE -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminQuestionType">
+
+            📝 Question Type
+
+        </label>
+
+
+        <select id="adminQuestionType">
+
+            <option value="Important">
+
+                Important Question
+
+            </option>
+
+
+            <option value="PYQ">
+
+                Previous Year Question
+
+            </option>
+
+
+            <option value="Practice">
+
+                Practice Question
+
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- DIFFICULTY -->
+    <!-- ========================================= -->
+
+    <div class="admin-field">
+
+        <label for="adminDifficulty">
+
+            🎯 Difficulty
+
+        </label>
+
+
+        <select id="adminDifficulty">
+
+            <option value="Easy">
+
+                Easy
+
+            </option>
+
+
+            <option value="Medium">
+
+                Medium
+
+            </option>
+
+
+            <option value="Hard">
+
+                Hard
+
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- ========================================= -->
+    <!-- ADD QUESTION BUTTON -->
+    <!-- ========================================= -->
+
+    <button id="addQuestionButton">
+
+        💾 ADD QUESTION
+
+    </button>
+
+
+    <!-- ========================================= -->
+    <!-- ADMIN MESSAGE -->
+    <!-- ========================================= -->
+
+    <p id="adminMessage"></p>
+
+
+    <hr>
+
+    <!-- ========================================= -->
+    <!-- CHAPTER MASTER MANAGEMENT - STAGE 10 -->
+    <!-- ========================================= -->
+
+    <hr>
+
+    <section class="welcome">
+        <h2>📚 Chapter Master Management</h2>
+        <p>Add, edit and activate/deactivate Maharashtra SSC chapters.</p>
+    </section>
+
+    <div class="admin-field">
+        <label for="chapterMasterSubject">📖 Subject</label>
+        <select id="chapterMasterSubject">
+            <option value="">Select Subject</option>
+        </select>
+    </div>
+
+    <div class="admin-field">
+        <label for="chapterMasterNumber">🔢 Chapter Number</label>
+        <input type="text" id="chapterMasterNumber" placeholder="Example: 1 or 1.1">
+    </div>
+
+    <div class="admin-field">
+        <label for="chapterMasterName">📝 Chapter Name</label>
+        <input type="text" id="chapterMasterName" placeholder="Enter official chapter name">
+    </div>
+
+    <button id="saveChapterButton">💾 ADD CHAPTER</button>
+    <button id="cancelChapterEditButton" style="display:none;">✖ Cancel Edit</button>
+
+    <p id="chapterMasterMessage"></p>
+
+    <button id="previewOfficialChapterButton">👁️ PREVIEW OFFICIAL SSC CHAPTERS</button>
+    <button id="importOfficialChapterButton">📥 IMPORT OFFICIAL SSC CHAPTER MASTER</button>
+    <p id="officialImportMessage"></p>
+    <div id="officialChapterPreview"></div>
+
+
+    <div class="admin-field">
+        <label for="chapterMasterStatus">🔘 Status</label>
+        <select id="chapterMasterStatus">
+            <option value="all">All Chapters</option>
+            <option value="active">Active Only</option>
+            <option value="inactive">Inactive Only</option>
+        </select>
+    </div>
+
+    <div class="admin-field">
+        <label for="chapterMasterSearch">🔎 Search Chapter</label>
+        <input type="text" id="chapterMasterSearch" placeholder="Chapter number or name">
+    </div>
+
+    <button id="searchChapterMasterButton">🔍 SEARCH CHAPTERS</button>
+    <button id="clearChapterMasterButton">♻ Clear Filters</button>
+
+    <div id="chapterMasterResults"></div>
+
+
+    <!-- ========================================= -->
+    <!-- QUESTION BANK MANAGEMENT -->
+    <!-- ========================================= -->
+
+    <section class="welcome">
+        <h2>🗂 Question Bank Management</h2>
+        <p>View, search, edit and activate/deactivate questions.</p>
+    </section>
+
+    <div class="admin-field">
+        <label for="manageSubject">📚 Filter by Subject</label>
+        <select id="manageSubject">
+            <option value="">All Subjects</option>
+        </select>
+    </div>
+
+    <div class="admin-field">
+        <label for="manageChapter">📖 Filter by Chapter</label>
+        <select id="manageChapter">
+            <option value="">All Chapters</option>
+        </select>
+    </div>
+
+    <div class="admin-field">
+        <label for="manageStatus">🔘 Status</label>
+        <select id="manageStatus">
+            <option value="all">All Questions</option>
+            <option value="active">Active Only</option>
+            <option value="inactive">Inactive Only</option>
+        </select>
+    </div>
+
+    <div class="admin-field">
+        <label for="manageSearch">🔎 Search Question</label>
+        <input
+            type="text"
+            id="manageSearch"
+            placeholder="Type a word from the question"
+        >
+    </div>
+
+    <button id="searchQuestionsButton">
+        🔍 SEARCH QUESTIONS
+    </button>
+
+    <button id="clearQuestionFiltersButton">
+        ♻ Clear Filters
+    </button>
+
+    <p id="questionManagementMessage"></p>
+
+    <div id="questionManagementResults"></div>
+
+    <!-- ========================================= -->
+    <!-- STAGE 10 STEP 4 - BULK QUESTION IMPORT -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>📥 Bulk Question Import</h2>
+        <p>Import many questions at once using CSV. One row = one question.</p>
+    </section>
+
+    <div class="admin-field">
+        <label for="bulkQuestionCsv">📄 CSV Question Data</label>
+        <textarea id="bulkQuestionCsv" rows="10" placeholder="subject_name,chapter_number,question_text,marks,hint,easy_answer,keywords,question_type,difficulty,pyq_year,question_paper_id
+English,1,What is a noun?,1,A simple hint,A naming word,noun grammar,Important,Easy,,
+English,1,Write the plural of child.,1,Think of more than one.,children,plural,Important,Easy,,"></textarea>
+    </div>
+
+    <button id="downloadBulkTemplateButton">📄 DOWNLOAD CSV TEMPLATE</button>
+    <button id="previewBulkQuestionsButton">👁️ PREVIEW QUESTIONS</button>
+    <button id="importBulkQuestionsButton">📥 IMPORT QUESTIONS</button>
+    <p id="bulkQuestionMessage"></p>
+    <div id="bulkQuestionPreview"></div>
+
+    <!-- ========================================= -->
+    <!-- STAGE 10 STEP 12 - HINDI LOKBHARATI -->
+    <!-- ========================================= -->
+
+    <section class="welcome">
+        <h2>🇮🇳 Hindi Lokbharati – 22 Chapters</h2>
+        <p>22 textbook chapters • 440 original PASS-oriented practice questions. Grammar &amp; Rachna Vibhag will be added separately.</p>
+
+        <button id="previewHindiButton">👁️ PREVIEW HINDI 22 CHAPTERS</button>
+        <button id="importHindiButton">🚀 IMPORT ALL 440 QUESTIONS</button>
+        <p id="hindiPackMessage"></p>
+        <pre id="hindiPackPreview"></pre>
+    </section>
+
+    <!-- ========================================= -->
+    <!-- ========================================= -->
+    <!-- STAGE 10 STEP 13 - HINDI GRAMMAR & RACHNA -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>📝 Hindi Grammar &amp; Rachna</h2>
+        <p>10 practice sections • 200 original PASS-oriented questions. Grammar and writing practice is kept separate from the 22 literature chapters.</p>
+        <button id="previewHindiGrammarButton">👁️ PREVIEW HINDI GRAMMAR &amp; RACHNA</button>
+        <button id="importHindiGrammarButton">🚀 IMPORT ALL 200 QUESTIONS</button>
+        <p id="hindiGrammarMessage"></p>
+        <pre id="hindiGrammarPreview"></pre>
+    </section>
+
+    <!-- STAGE 10 - MARATHI KUMARBHARATI -->
+    <!-- ========================================= -->
+
+    <section class="welcome">
+        <h2>📖 Marathi Kumarbharati – 20 Chapters</h2>
+        <p>20 chapters • 400 original PASS-oriented practice questions</p>
+
+        <button id="previewMarathiButton">👁️ PREVIEW MARATHI 20 CHAPTERS</button>
+        <button id="importMarathiButton">🚀 IMPORT ALL 400 QUESTIONS</button>
+        <p id="marathiPackMessage"></p>
+        <pre id="marathiPackPreview"></pre>
+    </section>
+
+    <!-- ========================================= -->
+    <!-- ONE CLICK ENGLISH - REMAINING 21 CHAPTERS -->
+    <!-- ========================================= -->
+
+    <section class="welcome">
+        <h2>📚 English – Remaining 21 Chapters</h2>
+        <p>One-click import of the bundled 420 original chapter-specific PASS-oriented practice questions. Existing identical questions will be skipped.</p>
+    </section>
+    <button id="previewEnglish24Button">👁️ PREVIEW REMAINING 21 CHAPTERS</button>
+    <button id="importEnglish24Button">🚀 IMPORT ALL 420 QUESTIONS</button>
+    <p id="english24Message"></p>
+    <div id="english24Preview"></div>
+
+
+    <!-- ========================================= -->
+    <!-- STAGE 10 STEP 6 - STARTER QUESTION PACK -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>🚀 Starter Question Pack</h2>
+        <p>Preview and import 20 original PASS-oriented practice questions for English Chapter 1.1 — Where the Mind is Without Fear.</p>
+    </section>
+    <button id="previewStarterPackButton">👁️ PREVIEW ENGLISH 1.1 PACK</button>
+    <button id="importStarterPackButton">📥 IMPORT 20 STARTER QUESTIONS</button>
+    <p id="starterPackMessage"></p>
+    <div id="starterPackPreview"></div>
+
+
+    <!-- ========================================= -->
+    <!-- STAGE 10 STEP 8 - ENGLISH 1.2 QUESTION PACK -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>📘 English Chapter 1.2 Question Pack</h2>
+        <p>Preview and import 20 original PASS-oriented practice questions for English Chapter 1.2 — The Thief's Story.</p>
+    </section>
+    <button id="previewEnglish12PackButton">👁️ PREVIEW ENGLISH 1.2 PACK</button>
+    <button id="importEnglish12PackButton">📥 IMPORT 20 QUESTIONS</button>
+    <p id="english12PackMessage"></p>
+    <div id="english12PackPreview"></div>
+
+
+    <!-- ========================================= -->
+    <!-- STAGE 10 STEP 9 - ENGLISH 1.3 QUESTION PACK -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>✈️ English Chapter 1.3 Question Pack</h2>
+        <p>Preview and import 20 original PASS-oriented practice questions for English Chapter 1.3 — On Wings of Courage.</p>
+    </section>
+    <button id="previewEnglish13PackButton">👁️ PREVIEW ENGLISH 1.3 PACK</button>
+    <button id="importEnglish13PackButton">📥 IMPORT 20 QUESTIONS</button>
+    <p id="english13PackMessage"></p>
+    <div id="english13PackPreview"></div>
+
+
+    <!-- ========================================= -->
+    <!-- CHAPTER QUESTION SUMMARY -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>📊 Chapter-wise Question Bank Summary</h2>
+        <p>See how many questions are available in each chapter before adding more content.</p>
+    </section>
+    <button id="loadChapterSummaryButton">📊 LOAD CHAPTER SUMMARY</button>
+    <p id="chapterSummaryMessage"></p>
+    <div id="chapterSummaryResults"></div>
+
+    <!-- ========================================= -->
+    <!-- QUESTION BANK CONTENT PLAN -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>🎯 Question Bank Content Plan</h2>
+        <p>Internal planning tool: aim for 20 active questions per chapter. This is an app-building target, not an official Board requirement.</p>
+    </section>
+    <button id="loadQuestionBankHealthButton">🎯 CHECK CONTENT GAPS</button>
+    <p id="questionBankHealthMessage"></p>
+    <div id="questionBankHealthResults"></div>
+
+    <!-- ========================================= -->
+    <!-- STAGE 10 STEP 7 - SUBJECT CONTENT PROGRESS -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>📈 Overall Content Progress</h2>
+        <p>Track how much of our internal question-bank target is ready subject by subject.</p>
+    </section>
+    <button id="loadContentProgressButton">📈 LOAD OVERALL CONTENT PROGRESS</button>
+    <p id="contentProgressMessage"></p>
+    <div id="contentProgressResults"></div>
+
+    <!-- ========================================= -->
+    <!-- STAGE 10 STEP 21 - FULL QUESTION BANK AUDIT -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>🔎 Full Question Bank Audit</h2>
+        <p>Check every active chapter against our internal target of 20 active questions per chapter. This is an app-building target, not an official Board requirement.</p>
+    </section>
+    <button id="loadContentAuditButton">🔎 RUN FULL QUESTION BANK AUDIT</button>
+<button id="repairChapterStructureButton" style="margin-left:8px;">🛠️ REPAIR DUPLICATE / INVALID CHAPTERS</button>
+<p style="font-size:13px;">Use this once after content imports to consolidate duplicate chapter rows and preserve their questions.</p>
+    <p id="contentAuditMessage"></p>
+    <div id="contentAuditResults"></div>
+
+    <br><br>
+
+
+    <!-- ========================================= -->
+    <!-- ========================================= -->
+    <!-- STAGE 10 STEP 22 - QUESTION QUALITY AUDIT -->
+    <!-- ========================================= -->
+    <section class="welcome">
+        <h2>🧪 Question Quality & Coverage Audit</h2>
+        <p>Check active questions for basic metadata completeness and Easy/Medium/Hard coverage.</p>
+    </section>
+    <button id="loadQuestionQualityAuditButton">🧪 RUN QUESTION QUALITY AUDIT</button>
+    <p id="questionQualityAuditMessage"></p>
+    <div id="questionQualityAuditResults"></div>
+
+
+    <!-- BACK TO STUDENT APP -->
+    <!-- ========================================= -->
+
+    <button
+        onclick="window.location.href='index.html'"
+    >
+
+        ← Back to Student App
+
+    </button>
+
+
+</div>
+
+
+<section class="welcome">
+  <h2>🔬 Science & Technology Part I – 10 Chapters</h2>
+  <p>10 chapters • 200 original PASS-oriented practice questions</p>
+  <button id="previewSciencePartIButton">👁️ PREVIEW SCIENCE PART I PACK</button>
+  <button id="importSciencePartIButton">🚀 IMPORT ALL 200 QUESTIONS</button>
+  <p id="sciencePartIPackMessage"></p>
+  <pre id="sciencePartIPackPreview"></pre>
+</section>
+
+
+<section class="welcome">
+  <h2>🧬 Science & Technology Part II – 10 Chapters</h2>
+  <p>10 chapters • 200 original PASS-oriented practice questions</p>
+  <button id="previewSciencePartIIButton">👁️ PREVIEW SCIENCE PART II PACK</button>
+  <button id="importSciencePartIIButton">🚀 IMPORT ALL 200 QUESTIONS</button>
+  <p id="sciencePartIIPackMessage"></p>
+  <pre id="sciencePartIIPackPreview"></pre>
+</section>
+
+<!-- ========================================= -->
+<!-- ADMIN JAVASCRIPT -->
+<!-- ========================================= -->
+
+
+<section class="welcome">
+  <h2>📚 History & Political Science – 14 Chapters</h2>
+  <p>14 chapters • 280 original PASS-oriented practice questions</p>
+  <button id="previewHistoryPoliticalScienceButton">👁️ PREVIEW HISTORY & POLITICAL SCIENCE PACK</button>
+  <button id="importHistoryPoliticalScienceButton">🚀 IMPORT ALL 280 QUESTIONS</button>
+  <p id="historyPoliticalSciencePackMessage"></p>
+  <pre id="historyPoliticalSciencePackPreview"></pre>
+</section>
+
+
+<section class="welcome">
+  <h2>🌍 Geography – 10 Chapters</h2>
+  <p>10 chapters • 200 original PASS-oriented practice questions</p>
+  <button id="previewGeographyButton">👁️ PREVIEW GEOGRAPHY PACK</button>
+  <button id="importGeographyButton">🚀 IMPORT ALL 200 QUESTIONS</button>
+  <p id="geographyPackMessage"></p>
+
+  <section class="welcome">
+    <h2>🖼️ STEP 34 — Visual Learning Quality Coverage</h2>
+    <p>Geography: 100 new Medium/Hard questions + Mathematics Part I Probability: 7 new Hard questions. Every new question includes a dedicated VisualTag.</p>
+    <button id="importVisualQualityGapButton">🚀 IMPORT 107 VISUAL-TAGGED QUESTIONS</button>
+    <p id="visualQualityGapMessage"></p>
+  </section>
+  <pre id="geographyPackPreview"></pre>
+</section>
+
+<!-- ========================================= -->
+<!-- STAGE 10 STEP 24 - MCQ QUESTION EDITOR -->
+<!-- ========================================= -->
+<section class="welcome">
+  <h2>📝 Automatic MCQ Question Setup</h2>
+  <p>Prepare MCQ options and the correct answer for active questions. A subject needs at least 20 MCQ-ready questions before students can start its automatic mock test.</p>
+  <select id="mcqSubjectSelect"><option value="">Select Subject</option></select>
+  <button id="loadMcqQuestionsButton">🔎 LOAD QUESTIONS</button>
+  <p id="mcqReadinessMessage"></p>
+  <div id="mcqReadinessResults"></div>
+  <div id="mcqEditorResults"></div>
+</section>
+
+
+
+
+<section class="welcome">
+  <h2>📐 Mathematics Part II – 7 Chapters</h2>
+  <p>7 chapters • 140 original PASS-oriented practice questions</p>
+  <button id="previewMathPartIIButton">👁️ PREVIEW MATH PART II PACK</button>
+  <button id="importMathPartIIButton">🚀 IMPORT ALL 140 QUESTIONS</button>
+  <p id="mathPartIIPackMessage"></p>
+  <pre id="mathPartIIPackPreview"></pre>
+</section>
+
+<section class="welcome">
+  <h2>📐 Mathematics Part I – 6 Chapters</h2>
+  <p>6 chapters • 120 original PASS-oriented practice questions</p>
+  <button id="previewMathPartIButton">👁️ PREVIEW MATH PART I PACK</button>
+  <button id="importMathPartIButton">🚀 IMPORT ALL 120 QUESTIONS</button>
+  <p id="mathPartIPackMessage"></p>
+  <pre id="mathPartIPackPreview"></pre>
+</section>
+
+<section class="welcome">
+  <h2>🕉️ Sanskrit Amod – 15 Chapters</h2>
+  <p>15 chapters • 300 original PASS-oriented practice questions</p>
+  <button id="previewSanskritButton">👁️ PREVIEW SANSKRIT 15 CHAPTERS</button>
+  <button id="importSanskritButton">🚀 IMPORT ALL 300 QUESTIONS</button>
+  <p id="sanskritPackMessage"></p>
+  <pre id="sanskritPackPreview"></pre>
+</section>
+
+
+<section class="welcome" id="step26ManagementSection">
+  <h2>🛠️ Step 26 – Content + MCQ + Exam Management</h2>
+  <p>एकाच ठिकाणी Subject, Chapter, Question Bank, MCQ readiness आणि Mock Test history तपासा.</p>
+  <button id="loadStep26OverviewButton">🔄 LOAD MANAGEMENT DASHBOARD</button>
+  <div id="step26OverviewMessage"></div>
+  <div id="step26OverviewResults"></div>
+  <hr>
+  <h3>📚 Chapter Management</h3>
+  <select id="step26SubjectSelect"><option value="">Select Subject</option></select>
+  <button id="loadStep26ChaptersButton">LOAD CHAPTERS</button>
+  <div id="step26ChapterResults"></div>
+  <hr>
+  <h3>📝 MCQ Management</h3>
+  <button id="loadStep26McqStatsButton">CHECK MCQ STATUS</button>
+  <div id="step26McqStats"></div>
+  <hr>
+  <h3>📊 Exam Management</h3>
+  <button id="loadStep26ExamHistoryButton">LOAD MOCK TEST HISTORY</button>
+  <div id="step26ExamHistory"></div>
+</section>
+
+
+
+<section class="welcome" id="step37PyqExtractionSection" style="border:2px solid #2e7d32;">
+  <h2>🚀 STEP 37 — OFFICIAL PYQ EXTRACTION WORKSPACE</h2>
+  <p><strong>Purpose:</strong> Official Board PDF → text extraction → question separation → chapter suggestion → answer/visual review → verified ACTUAL_PYQ import → repeated PYQ analysis.</p>
+  <p>Official source: <a href="https://mahahsscboard.in/question-paper" target="_blank" rel="noopener">MSBSHSE Question Paper Portal</a></p>
+  <hr>
+  <h3>1️⃣ Official Board Paper Details</h3>
+  <label>Subject</label>
+  <select id="step37Subject"><option value="">Select Subject</option></select>
+  <label>Exam Year</label>
+  <input id="step37Year" type="number" min="2000" max="2100" placeholder="2025">
+  <label>Exam Month</label>
+  <input id="step37Month" value="March" placeholder="March / July">
+  <label>Paper / Set</label>
+  <input id="step37Set" placeholder="Set A / Marathi Medium / etc.">
+  <br><br>
+  <label>Official Source URL</label>
+  <input id="step37SourceUrl" style="width:90%" value="https://mahahsscboard.in/question-paper">
+  <br><br>
+  <label>Verified Source Note</label>
+  <input id="step37SourceNote" style="width:90%" placeholder="Verified from official MSBSHSE paper portal">
+  <br><br>
+  <input type="file" id="step37PdfFile" accept="application/pdf,.pdf">
+  <button id="step37ExtractPdfButton">📄 EXTRACT QUESTIONS FROM PDF</button>
+  <button id="step37LoadStatusButton">📊 LOAD EXTRACTION STATUS</button>
+  <p id="step37Message"></p>
+  <details>
+    <summary>⚠️ If PDF is scanned/image-only</summary>
+    <p>The browser extractor first tries selectable PDF text. If the PDF contains only scanned images, it will clearly report that OCR is required instead of silently inventing questions.</p>
+  </details>
+  <textarea id="step37RawText" rows="8" style="width:100%;display:none" placeholder="Extracted text preview"></textarea>
+  <div id="step37BatchResults"></div>
+  <hr>
+  <h3>2️⃣ Review / Chapter Mapping / Answer / Visual Tag</h3>
+  <p>Only reviewed rows with chapter mapping and an answer are eligible for ACTUAL_PYQ import.</p>
+  <button id="step37ImportApprovedButton" disabled>✅ IMPORT REVIEWED AS ACTUAL PYQ</button>
+  <button id="step37RepeatAnalysisButton">🔥 RUN REPEATED PYQ ANALYSIS</button>
+  <button id="step37RepeatReportButton">📈 LOAD REPEATED PYQ REPORT</button>
+  <div id="step37RepeatResults" style="min-height:20px;margin-top:8px"></div>
+  <div id="step37ReviewResults"></div>
+</section>
+
+<section class="welcome" id="step36PyqSection">
+  <h2>🟢 STEP 36 — PYQ-FIRST / AUTHENTIC BOARD QUESTION BANK</h2>
+  <p>Actual Board PYQs are kept separate from PYQ-based, Important and Practice questions. Do not label a question ACTUAL_PYQ unless it is verified from a real Board paper.</p>
+  <input type="file" id="pyqCsvFile" accept=".csv,text/csv">
+  <button id="importPyqCsvButton">📥 IMPORT VERIFIED PYQ CSV</button> <button id="importBundledMath1Button">📥 IMPORT 2025 MATH-I — 27 VERIFIED PYQs</button>
+  <button id="pyqStatsButton">📊 CHECK PYQ STATUS</button>
+  <p id="pyqImportMessage"></p>
+  <div id="pyqStatsResults"></div>
+  <details><summary>📄 Required CSV format</summary>
+    <p>Columns: subject_name,chapter_number,question_text,pyq_year,pyq_exam_month,pyq_paper_set,marks,hint,easy_answer,keywords,difficulty,pyq_frequency,visual_tag,source_note,question_paper_id</p>
+    <p><strong>ACTUAL_PYQ</strong> is assigned automatically by the verified importer. Existing questions are not converted into PYQ.</p>
+  </details>
+</section>
+
+<section class="welcome" id="step47PyqCoverageSection" style="border:2px solid #1565c0;">
+  <h2>🔵 STEP 47 — PYQ YEAR COVERAGE & 2024 INTAKE</h2>
+  <p><strong>Goal:</strong> Build verified cross-year PYQ coverage before calling a question REPEATED_PYQ.</p>
+  <p>Official source: <a href="https://mahahsscboard.in/question-paper" target="_blank" rel="noopener">MSBSHSE Question Paper Portal</a></p>
+  <button id="step47CoverageButton">📊 CHECK PYQ YEAR COVERAGE</button>
+  <div id="step47CoverageResults" style="margin-top:10px"></div>
+  <hr>
+  <h3>📥 Next paper: 2024</h3>
+  <p>For authenticity, upload/import only a question set verified against the official Board paper. Do not paste AI-generated questions as PYQs.</p>
+  <p><strong>Recommended order:</strong> Mathematics-I 2024 → Mathematics-II 2024 → Science → Social Science → Languages.</p>
+  <button id="step47OpenOfficialPortalButton">🌐 OPEN OFFICIAL BOARD QUESTION PAPER PORTAL</button>
+  <button id="step47ShowImportHelpButton">📄 SHOW 2024 CSV IMPORT INSTRUCTIONS</button>
+  <button id="step48Import2024Math1Button">🚀 IMPORT VERIFIED 2024 MATHEMATICS-I (27 PYQs)</button>
+  <p id="step48Import2024Message"></p>
+  <div id="step47ImportHelp" style="display:none;margin-top:8px;padding:10px;border:1px solid #bbb;background:#fafafa">
+    <ol><li>Download the official 2024 paper from the Board portal.</li><li>Prepare verified rows using <code>PYQ_IMPORT_TEMPLATE.csv</code>.</li><li>Include year=2024, month, paper/set, chapter number, answer and source note.</li><li>Use <strong>IMPORT VERIFIED PYQ CSV</strong> only after reviewing the rows.</li><li>Run <strong>REPEATED PYQ ANALYSIS</strong> only after at least two verified years exist.</li></ol>
+  </div>
+</section>
+
+<section class="welcome" id="step35McqSection">
+  <h2>🎯 STEP 35 — MCQ-Ready Question Bank + Mock Test</h2>
+  <p>Curated, answer-verified starter MCQs for Geography and Mathematics Part I. Each MCQ has four options, correct answer and explanation.</p>
+  <button id="step35ReadinessButton">📊 CHECK MCQ READINESS</button>
+  <button id="step35ImportButton">🚀 IMPORT 40 CURATED MCQs</button>
+  <p id="step35Message"></p>
+  <div id="step35Results"></div>
+  <p><strong>Note:</strong> The automatic Mock Test requires at least 20 MCQ-ready questions in a subject; this pack makes Geography and Mathematics Part I testable immediately.</p>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="admin.js?v=48"></script>
+<script src="pyq-extraction.js?v=9"></script>
+</body>
+
+</html>

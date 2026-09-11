@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 160">
+<rect width="260" height="160" fill="white"/><text x="130" y="18" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold">Metallurgy</text><path d="M40 125 H220" stroke="black" stroke-width="3"/><path d="M65 120 Q75 90 85 120 M105 120 Q115 80 125 120 M145 120 Q155 92 165 120" fill="none" stroke="black" stroke-width="2"/><path d="M185 120 Q195 70 205 120" fill="none" stroke="black" stroke-width="2"/><text x="75" y="50" font-size="12">Ore → extraction → metal</text>
+</svg>

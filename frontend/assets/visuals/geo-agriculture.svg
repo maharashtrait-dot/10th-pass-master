@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 160">
+<rect width="260" height="160" fill="white"/><text x="130" y="18" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold">Agriculture</text><path d="M30 125 Q130 65 230 125" fill="none" stroke="black" stroke-width="2"/><path d="M45 120 L55 80 L65 120 M85 120 L95 70 L105 120 M125 120 L135 82 L145 120 M165 120 L175 68 L185 120" fill="none" stroke="black" stroke-width="2"/><circle cx="200" cy="45" r="16" fill="none" stroke="black" stroke-width="2"/><path d="M200 25v-12 M200 77v12 M180 45h-12 M220 45h12" stroke="black" stroke-width="2"/>
+</svg>
