@@ -505,9 +505,33 @@
 
     function renderVisualLearning(question) {
         const result = findVisual(question);
-        if (!result) return "";
+        let rule, matched;
 
-        const rule = result.rule;
+        if (result) {
+            rule = result.rule;
+            matched = result.matched;
+        } else {
+            // Guaranteed educational fallback: do not leave the learner
+            // without a visual simply because a question has weak keywords.
+            const text = [question && question.question_text, question && question.keywords, question && question.easy_answer]
+                .join(" ").toLowerCase();
+            let asset = "language-keywords.svg", title = "Remember visually", caption = "Connect the key idea with the picture.";
+            if (/mean|median|mode|statistics|frequency|data/.test(text)) { asset="math-statistics.svg"; title="Statistics"; caption="Compare data values and remember the key statistical idea."; }
+            else if (/probability|sample space|outcome|dice|die/.test(text)) { asset="math-probability.svg"; title="Probability"; caption="Think about possible outcomes and the sample space."; }
+            else if (/linear equation|two variables|straight line|coordinate/.test(text)) { asset="math-linear-graph.svg"; title="Linear Equation"; caption="A linear equation can be represented by a straight-line graph."; }
+            else if (/quadratic|roots|discriminant/.test(text)) { asset="math-quadratic.svg"; title="Quadratic Equation"; caption="Remember the quadratic equation and its roots."; }
+            else if (/circle|radius|diameter|chord/.test(text)) { asset="math-circle.svg"; title="Circle"; caption="Remember centre, radius, diameter and chord."; }
+            else if (/pythagoras|right triangle|hypotenuse/.test(text)) { asset="math-pythagoras.svg"; title="Pythagoras Theorem"; caption="For a right triangle, a² + b² = c²."; }
+            else if (/trigonometry|sine|cosine|tangent/.test(text)) { asset="math-trigonometry.svg"; title="Trigonometry"; caption="Connect trigonometric ratios with a right triangle."; }
+            else if (/electric current|electric circuit|voltage|resistance|solenoid/.test(text)) { asset="sci-circuit.svg"; title="Electric Current"; caption="A closed circuit allows current to flow."; }
+            else if (/chemical reaction|reactant|product|chemical equation/.test(text)) { asset="sci-reaction.svg"; title="Chemical Reaction"; caption="Reactants change into products."; }
+            else if (/gravitation|gravity|gravitational force/.test(text)) { asset="sci-gravitation.svg"; title="Gravitation"; caption="Objects attract each other due to gravitational force."; }
+            else if (/democracy|election|constitution|voting|political party/.test(text)) { asset="civics-democracy.svg"; title="Democracy"; caption="Citizens participate through voting and representation."; }
+            else if (/history|timeline|chronology|century|movement/.test(text)) { asset="history-timeline.svg"; title="History Timeline"; caption="Place important events in chronological order."; }
+            else if (/latitude|longitude|location|direction|map/.test(text)) { asset="geo-location-grid.svg"; title="Geographical Location"; caption="Use location and direction to understand the topic."; }
+            rule = {asset,title,caption}; matched = "Key idea";
+        }
+
         const src = BASE + rule.asset;
         return `
             <div class="visual-learning-card" aria-label="Automatic visual learning aid">
@@ -515,7 +539,7 @@
                 <div class="visual-learning-body">
                     <div class="visual-learning-keyword">
                         <span class="visual-learning-label">Related keyword</span>
-                        <strong>${escapeHtml(result.matched)}</strong>
+                        <strong>${escapeHtml(matched)}</strong>
                     </div>
                     <img class="visual-learning-image" src="${src}" alt="${escapeHtml(rule.title)}" loading="lazy">
                     <div class="visual-learning-caption">

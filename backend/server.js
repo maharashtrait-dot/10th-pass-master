@@ -5380,17 +5380,122 @@ async function ensureMockTestTables() {
     `);
 }
 
+// STEP 75 - All-subject Mock Test + solution/working support.
+function buildDetailedSolution(q) {
+    const text = String(q.question_text || '').trim();
+    const answer = String(q.easy_answer || '').trim();
+    const hint = String(q.hint || '').trim();
+    const explanation = String(q.mcq_explanation || '').trim();
+    if (explanation) return explanation;
+
+    const subject = String(q.subject_name || '').toLowerCase();
+
+    // Common Mathematics calculations: provide real working where the
+    // question pattern is unambiguous, otherwise preserve the supplied
+    // curriculum answer and method rather than inventing facts.
+    if (subject.includes('mathematics')) {
+        let m = text.match(/mean of (?:the )?data[:\s]+([\d,\.\s\-]+)/i);
+        if (m) {
+            const nums = m[1].split(',').map(x=>Number(x.trim())).filter(Number.isFinite);
+            if (nums.length) {
+                const sum = nums.reduce((a,b)=>a+b,0);
+                const mean = sum/nums.length;
+                return `Step 1: Add all observations: ${nums.join(' + ')} = ${sum}.\nStep 2: Number of observations = ${nums.length}.\nStep 3: Mean = Sum of observations ÷ Number of observations = ${sum} ÷ ${nums.length} = ${mean}.\nAnswer: ${answer || mean}.`;
+            }
+        }
+
+        m = text.match(/(?:discriminant of|for)\s*([0-9]+)x[²2]\s*([+\-])\s*([0-9]+)x\s*([+\-])\s*([0-9]+)/i);
+        if (m) {
+            const a=Number(m[1]), b=(m[2]==='-'?-1:1)*Number(m[3]), c=(m[4]==='-'?-1:1)*Number(m[5]);
+            const D=b*b-4*a*c;
+            return `Step 1: Compare with ax² + bx + c = 0, so a=${a}, b=${b}, c=${c}.\nStep 2: Use D = b² − 4ac.\nStep 3: D = (${b})² − 4(${a})(${c}) = ${D}.\nStep 4: Since D > 0, the roots are real and distinct.\nAnswer: ${answer || D}.`;
+        }
+
+        m = text.match(/quadratic equation\s*([0-9]+)?x[²2]\s*([+\-])\s*([0-9]+)x\s*([+\-])\s*([0-9]+)/i);
+        if (m) {
+            const a=Number(m[1]||1), b=(m[2]==='-'?-1:1)*Number(m[3]), c=(m[4]==='-'?-1:1)*Number(m[5]);
+            const D=b*b-4*a*c;
+            if (D>=0) {
+                const r1=(-b+Math.sqrt(D))/(2*a), r2=(-b-Math.sqrt(D))/(2*a);
+                const fmt=x=>Number.isInteger(x)?String(x):String(Number(x.toFixed(4)));
+                return `Step 1: Identify a=${a}, b=${b}, c=${c}.\nStep 2: Use x = [−b ± √(b²−4ac)] ÷ 2a.\nStep 3: D = b²−4ac = ${D}.\nStep 4: x = [${-b} ± √${D}] ÷ ${2*a}.\nAnswer: x = ${fmt(r1)} or x = ${fmt(r2)}.`;
+            }
+        }
+
+        m = text.match(/(\d+)x\s*\+\s*(\d+)y\s*=\s*(\d+)\s+and\s+(\d*)x\s*\+\s*(\d+)y\s*=\s*(\d+)/i);
+        if (m) {
+            const a=Number(m[1]), b=Number(m[2]), c=Number(m[3]), d=Number(m[4]||1), e=Number(m[5]), f=Number(m[6]);
+            const det=a*e-d*b;
+            if (det!==0) {
+                const x=(c*e-f*b)/det, y=(a*f-d*c)/det;
+                const fmt=v=>Number.isInteger(v)?String(v):String(Number(v.toFixed(4)));
+                return `Step 1: Write the equations: ${a}x + ${b}y = ${c} and ${d}x + ${e}y = ${f}.\nStep 2: Eliminate one variable (or use Cramer's rule).\nStep 3: x = (ce − fb)/(ae − db) = ${fmt(x)}.\nStep 4: Substitute x back to get y = ${fmt(y)}.\nAnswer: x = ${fmt(x)}, y = ${fmt(y)}.`;
+            }
+        }
+
+        m = text.match(/x\s*=\s*([\-\d.]+).*equation\s*([0-9]+)x\s*\+\s*y\s*=\s*([\-\d.]+)/i);
+        if (m) {
+            const x=Number(m[1]), a=Number(m[2]), c=Number(m[3]), y=c-a*x;
+            return `Step 1: Given x = ${x}.\nStep 2: Substitute in ${a}x + y = ${c}.\nStep 3: ${a}(${x}) + y = ${c}, so y = ${y}.\nAnswer: y = ${answer || y}.`;
+        }
+
+        m = text.match(/(?:legs|sides)\s*(?:are|of)\s*(\d+(?:\.\d+)?)\s*(?:cm)?\s*and\s*(\d+(?:\.\d+)?).*hypotenuse/i);
+        if (m) {
+            const a=Number(m[1]), b=Number(m[2]), c=Math.sqrt(a*a+b*b);
+            return `Step 1: Use Pythagoras theorem c² = a² + b².\nStep 2: c² = ${a}² + ${b}² = ${a*a+b*b}.\nStep 3: c = √${a*a+b*b} = ${Number.isInteger(c)?c:Number(c.toFixed(4))}.\nAnswer: ${answer || c}.`;
+        }
+    }
+
+    // Safe curriculum fallback: gives a genuine method + final answer
+    // without fabricating intermediate facts when the source only stores
+    // an easy answer.
+    const parts=[];
+    parts.push(`Step 1: Understand what the question is asking.`);
+    if (hint) parts.push(`Step 2: Method / Hint — ${hint}`);
+    parts.push(`Step 3: Apply the required rule, formula or concept to the given information.`);
+    if (answer) parts.push(`Step 4: Final answer — ${answer}`);
+    return parts.join('\n');
+}
+
+function buildDynamicMcq(q, answerPool) {
+    const existing = ['A','B','C','D'].map(k=>q['option_'+k.toLowerCase()]);
+    if (existing.every(x=>String(x||'').trim()) && ['A','B','C','D'].includes(String(q.correct_option||'').toUpperCase())) {
+        return {...q, solution:buildDetailedSolution(q)};
+    }
+    const correct = String(q.easy_answer || '').trim();
+    if (!correct) return null;
+    const distractors=[];
+    for (const a of answerPool) {
+        const v=String(a||'').trim();
+        if (!v || v===correct || distractors.includes(v)) continue;
+        distractors.push(v);
+        if (distractors.length===3) break;
+    }
+    while (distractors.length<3) distractors.push('None of the above');
+    const seed=(Number(q.id)||0)*1103515245+12345;
+    const pos=Math.abs(seed)%4;
+    const opts=[...distractors]; opts.splice(pos,0,correct);
+    return {
+        ...q,
+        option_a:opts[0],option_b:opts[1],option_c:opts[2],option_d:opts[3],
+        correct_option:['A','B','C','D'][pos],
+        solution:buildDetailedSolution(q),
+        dynamically_built:true
+    };
+}
+
 app.get('/api/students/:studentId/mock-test/subjects', async (req,res) => {
     try {
         const r = await pool.query(`
             SELECT s.id, s.name,
                    COUNT(q.id) FILTER (WHERE q.is_active=TRUE)::INTEGER AS question_count,
-                   COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND q.option_a IS NOT NULL AND q.option_b IS NOT NULL AND q.option_c IS NOT NULL AND q.option_d IS NOT NULL AND q.correct_option IN ('A','B','C','D'))::INTEGER AS mcq_ready
+                   COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND q.option_a IS NOT NULL AND q.option_b IS NOT NULL AND q.option_c IS NOT NULL AND q.option_d IS NOT NULL AND q.correct_option IN ('A','B','C','D'))::INTEGER AS stored_mcq_ready,
+                   COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND q.easy_answer IS NOT NULL AND TRIM(q.easy_answer)<>'')::INTEGER AS answered_ready
             FROM subjects s
             LEFT JOIN chapters c ON c.subject_id=s.id AND c.is_active=TRUE
             LEFT JOIN questions q ON q.chapter_id=c.id
             GROUP BY s.id,s.name ORDER BY s.id`);
-        res.json(r.rows);
+        res.json(r.rows.map(x=>({...x,mcq_ready:Math.max(Number(x.stored_mcq_ready||0),Number(x.answered_ready||0))})));
     } catch(e) { console.error(e); res.status(500).json({error:'Unable to load mock test subjects'}); }
 });
 
@@ -5401,47 +5506,22 @@ app.post('/api/students/:studentId/mock-test/start', async (req,res) => {
         if(!studentId || !subjectId) return res.status(400).json({error:'Student and subject are required'});
         const qs=await client.query(`
             SELECT q.id,q.question_text,q.marks,q.hint,q.keywords,q.difficulty,
-                   q.option_a,q.option_b,q.option_c,q.option_d,q.correct_option,q.mcq_explanation,
-                   c.chapter_number,c.chapter_name
-            FROM questions q JOIN chapters c ON c.id=q.chapter_id
+                   q.option_a,q.option_b,q.option_c,q.option_d,q.correct_option,q.mcq_explanation,q.easy_answer,
+                   s.name AS subject_name,c.chapter_number,c.chapter_name
+            FROM questions q JOIN chapters c ON c.id=q.chapter_id JOIN subjects s ON s.id=c.subject_id
             WHERE c.subject_id=$1 AND c.is_active=TRUE AND q.is_active=TRUE
-              AND q.option_a IS NOT NULL AND q.option_b IS NOT NULL AND q.option_c IS NOT NULL AND q.option_d IS NOT NULL
-              AND q.correct_option IN ('A','B','C','D')
-            ORDER BY RANDOM() LIMIT 20`,[subjectId]);
-        if(qs.rows.length<20) return res.status(400).json({error:`This subject has only ${qs.rows.length} MCQ-ready questions. Admin must prepare at least 20 MCQs.`});
+              AND (q.easy_answer IS NOT NULL AND TRIM(q.easy_answer)<>'')
+            ORDER BY RANDOM() LIMIT 80`,[subjectId]);
+        if(qs.rows.length<20) return res.status(400).json({error:`This subject has only ${qs.rows.length} answered questions. At least 20 are required.`});
+        const answerPool=qs.rows.map(q=>q.easy_answer).filter(Boolean);
+        const built=qs.rows.map(q=>buildDynamicMcq(q,answerPool)).filter(Boolean).slice(0,20);
+        if(built.length<20) return res.status(400).json({error:'Unable to prepare 20 reliable MCQs for this subject.'});
         await client.query('BEGIN');
-        const t=await client.query(`INSERT INTO mock_tests(student_id,subject_id,total_questions) VALUES($1,$2,$3) RETURNING *`,[studentId,subjectId,qs.rows.length]);
-        for(let i=0;i<qs.rows.length;i++) await client.query(`INSERT INTO mock_test_questions(test_id,question_id,question_order) VALUES($1,$2,$3)`,[t.rows[0].id,qs.rows[i].id,i+1]);
+        const t=await client.query(`INSERT INTO mock_tests(student_id,subject_id,total_questions) VALUES($1,$2,$3) RETURNING *`,[studentId,subjectId,built.length]);
+        for(let i=0;i<built.length;i++) await client.query(`INSERT INTO mock_test_questions(test_id,question_id,question_order) VALUES($1,$2,$3)`,[t.rows[0].id,built[i].id,i+1]);
         await client.query('COMMIT');
-        res.json({success:true,test:t.rows[0],questions:qs.rows.map(q=>({...q,easy_answer:undefined}))});
-    } catch(e){await client.query('ROLLBACK'); console.error(e); res.status(500).json({error:'Unable to start mock test'});} finally{client.release();}
-});
-
-app.get('/api/students/:studentId/mock-test/:testId', async (req,res)=>{
-    try {
-        const r=await pool.query(`
-            SELECT mt.*,s.name AS subject_name,
-                   COALESCE(json_agg(json_build_object('id',q.id,'question_text',q.question_text,'marks',q.marks,'hint',q.hint,'difficulty',q.difficulty,'option_a',q.option_a,'option_b',q.option_b,'option_c',q.option_c,'option_d',q.option_d,'question_order',mtq.question_order,'student_status',mtq.student_status,'selected_option',mtq.selected_option,'is_correct',mtq.is_correct) ORDER BY mtq.question_order) FILTER (WHERE q.id IS NOT NULL),'[]') AS questions
-            FROM mock_tests mt JOIN subjects s ON s.id=mt.subject_id
-            LEFT JOIN mock_test_questions mtq ON mtq.test_id=mt.id
-            LEFT JOIN questions q ON q.id=mtq.question_id
-            WHERE mt.id=$1 AND mt.student_id=$2 GROUP BY mt.id,s.name`,[req.params.testId,req.params.studentId]);
-        if(!r.rows.length) return res.status(404).json({error:'Mock test not found'}); res.json(r.rows[0]);
-    } catch(e){console.error(e);res.status(500).json({error:'Unable to load mock test'});}
-});
-
-app.get('/api/students/:studentId/mock-test-history', async (req,res)=>{
-    try {
-        const r=await pool.query(`
-            SELECT mt.id, mt.subject_id, s.name AS subject_name, mt.started_at, mt.submitted_at,
-                   mt.total_questions, mt.known_count AS correct, mt.revision_count, mt.score, mt.is_submitted
-            FROM mock_tests mt
-            JOIN subjects s ON s.id=mt.subject_id
-            WHERE mt.student_id=$1
-            ORDER BY mt.started_at DESC
-            LIMIT 20`, [req.params.studentId]);
-        res.json(r.rows);
-    } catch(e){ console.error(e); res.status(500).json({error:'Unable to load mock test history'}); }
+        res.json({success:true,test:t.rows[0],questions:built.map(q=>({...q,correct_option:undefined}))});
+    } catch(e){try{await client.query('ROLLBACK')}catch{} console.error(e);res.status(500).json({error:'Unable to start mock test'});} finally{client.release();}
 });
 
 app.post('/api/students/:studentId/mock-test/:testId/submit', async (req,res)=>{
@@ -5453,20 +5533,26 @@ app.post('/api/students/:studentId/mock-test/:testId/submit', async (req,res)=>{
         if(t.rows[0].is_submitted) return res.json({success:true,alreadySubmitted:true,test:t.rows[0]});
         await client.query('BEGIN');
         let correct=0,wrong=0,unanswered=0;
-        const rows=await client.query(`SELECT mtq.question_id,q.correct_option FROM mock_test_questions mtq JOIN questions q ON q.id=mtq.question_id WHERE mtq.test_id=$1 ORDER BY mtq.question_order`,[testId]);
+        const rows=await client.query(`
+            SELECT mtq.question_id,q.correct_option,q.easy_answer,q.question_text,q.hint,q.mcq_explanation,q.marks,q.keywords,q.difficulty,s.name AS subject_name,c.chapter_number,c.chapter_name,q.option_a,q.option_b,q.option_c,q.option_d
+            FROM mock_test_questions mtq JOIN questions q ON q.id=mtq.question_id JOIN chapters c ON c.id=q.chapter_id JOIN subjects s ON s.id=c.subject_id
+            WHERE mtq.test_id=$1 ORDER BY mtq.question_order`,[testId]);
+        const poolAnswers=rows.rows.map(r=>r.easy_answer).filter(Boolean);
+        const review=[];
         for(const row of rows.rows) {
+            const built=buildDynamicMcq(row,poolAnswers) || row;
             const selected=String(answers[row.question_id]||'').toUpperCase();
-            const st=selected==='A'||selected==='B'||selected==='C'||selected==='D' ? (selected===row.correct_option?'correct':'wrong') : 'unanswered';
+            const st=selected==='A'||selected==='B'||selected==='C'||selected==='D' ? (selected===built.correct_option?'correct':'wrong') : 'unanswered';
             if(st==='correct') correct++; else if(st==='wrong') wrong++; else unanswered++;
             await client.query(`UPDATE mock_test_questions SET student_status=$1,selected_option=$2,is_correct=$3 WHERE test_id=$4 AND question_id=$5`,[st,selected||null,st==='correct'?true:st==='wrong'?false:null,testId,row.question_id]);
+            review.push({id:row.question_id,question_text:row.question_text,marks:row.marks,option_a:built.option_a,option_b:built.option_b,option_c:built.option_c,option_d:built.option_d,selected_option:selected||null,correct_option:built.correct_option,solution:built.solution});
         }
         const total=t.rows[0].total_questions; const score=Math.round((correct/total)*100);
         const upd=await client.query(`UPDATE mock_tests SET submitted_at=CURRENT_TIMESTAMP,known_count=$1,revision_count=$2,score=$3,is_submitted=TRUE WHERE id=$4 RETURNING *`,[correct,wrong+unanswered,score,testId]);
         const pass=score>=40;
-        await client.query('COMMIT'); res.json({success:true,test:upd.rows[0],correct,wrong,unanswered,pass,message:'MCQ Mock Test submitted'});
-    } catch(e){await client.query('ROLLBACK');console.error(e);res.status(500).json({error:'Unable to submit mock test'});} finally{client.release();}
+        await client.query('COMMIT'); res.json({success:true,test:upd.rows[0],correct,wrong,unanswered,pass,review,message:'MCQ Mock Test submitted'});
+    } catch(e){try{await client.query('ROLLBACK')}catch{} console.error(e);res.status(500).json({error:'Unable to submit mock test'});} finally{client.release();}
 });
-
 
 // ================================================
 // STAGE 10 STEP 27 - EXAM RESULT ANALYSIS + WEAK TOPICS
