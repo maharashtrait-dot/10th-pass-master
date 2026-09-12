@@ -4320,14 +4320,89 @@ function buildLocalSolution(q){
     return parts.join('\n');
 }
 
+function getCompositeMockQuestions(subjectName){
+    const name=String(subjectName||'').trim().toLowerCase();
+    if(name==='hindi composite'){
+        const rows=[
+            ['संज्ञा', '“राम विद्यालय गया।” इस वाक्य में “राम” कौन-सी संज्ञा है?', ['व्यक्तिवाचक','जातिवाचक','भाववाचक','समूहवाचक'],'A','“राम” किसी विशेष व्यक्ति का नाम है, इसलिए यह व्यक्तिवाचक संज्ञा है.'],
+            ['सर्वनाम', '“सीमा ने कहा कि वह आज आएगी।” यहाँ “वह” कौन-सा शब्द है?', ['संज्ञा','सर्वनाम','विशेषण','क्रियाविशेषण'],'B','“वह” संज्ञा के स्थान पर आया है, इसलिए यह सर्वनाम है.'],
+            ['विशेषण', '“सुंदर फूल खिला है।” इसमें “सुंदर” क्या है?', ['क्रिया','सर्वनाम','विशेषण','संज्ञा'],'C','“सुंदर” फूल का गुण बताता है, इसलिए यह विशेषण है.'],
+            ['क्रिया', '“बच्चे मैदान में खेलते हैं।” इसमें मुख्य क्रिया कौन-सी है?', ['बच्चे','मैदान','में','खेलते हैं'],'D','काम का बोध कराने वाला शब्द “खेलते हैं” क्रिया है.'],
+            ['काल', '“मैं कल बाजार गया था।” यह किस काल का उदाहरण है?', ['वर्तमान काल','भूतकाल','भविष्यत् काल','अपूर्ण वर्तमान'],'B','“गया था” बीते समय का बोध कराता है, इसलिए भूतकाल है.'],
+            ['विलोम शब्द', '“आशा” का विलोम शब्द कौन-सा है?', ['विश्वास','निराशा','प्रेम','साहस'],'B','आशा का विपरीत अर्थ निराशा है.'],
+            ['पर्यायवाची', '“सूर्य” का पर्यायवाची शब्द कौन-सा है?', ['रवि','पवन','जल','धरा'],'A','रवि सूर्य का प्रचलित पर्यायवाची है.'],
+            ['लिंग', '“नदी” का लिंग क्या है?', ['पुल्लिंग','स्त्रीलिंग','नपुंसकलिंग','उभयलिंग'],'B','“नदी” स्त्रीलिंग शब्द है.'],
+            ['वचन', '“लड़के” शब्द का वचन क्या है?', ['एकवचन','बहुवचन','द्विवचन','कोई नहीं'],'B','“लड़के” एक से अधिक का बोध कराता है, इसलिए बहुवचन है.'],
+            ['मुहावरा', '“आँखों का तारा” मुहावरे का अर्थ क्या है?', ['बहुत दूर होना','बहुत प्रिय होना','बहुत क्रोधित होना','बहुत तेज दौड़ना'],'B','“आँखों का तारा” का अर्थ बहुत प्रिय व्यक्ति है.'],
+            ['मुहावरा', '“नाक में दम करना” का अर्थ क्या है?', ['बहुत परेशान करना','बहुत सम्मान करना','चुप रहना','मदद करना'],'A','किसी को बहुत परेशान करना “नाक में दम करना” है.'],
+            ['संधि', '“विद्यालय” शब्द का सही संधि-विच्छेद कौन-सा है?', ['विद्या + आलय','विद्य + आलय','विद्या + लय','विद + यालय'],'A','विद्यालय = विद्या + आलय.'],
+            ['समास', '“राजपुत्र” में कौन-सा समास है?', ['द्वंद्व','तत्पुरुष','बहुव्रीहि','अव्ययीभाव'],'B','राजा का पुत्र = राजपुत्र, इसलिए तत्पुरुष समास है.'],
+            ['वाक्य शुद्धि', 'सही वाक्य चुनिए।', ['वह स्कूल जाता हैं।','वह स्कूल जाते है।','वह स्कूल जाता है।','वह स्कूल जाओ है।'],'C','कर्ता “वह” एकवचन है, इसलिए “जाता है” सही है.'],
+            ['अलंकार', '“मुख चंद्रमा सा सुंदर है।” इसमें कौन-सा अलंकार है?', ['उपमा','रूपक','अनुप्रास','यमक'],'A','“सा” द्वारा तुलना की गई है, इसलिए उपमा अलंकार है.'],
+            ['वाक्य भेद', '“क्या तुमने गृहकार्य किया?” यह किस प्रकार का वाक्य है?', ['विधानवाचक','प्रश्नवाचक','आज्ञावाचक','विस्मयादिबोधक'],'B','प्रश्न पूछा गया है, इसलिए यह प्रश्नवाचक वाक्य है.'],
+            ['अशुद्ध-शुद्ध', '“कृपया करके बैठिए।” के स्थान पर अधिक शुद्ध रूप कौन-सा है?', ['कृपया बैठिए।','कृपया करके बैठना।','कृपया बैठता है।','कृपया बैठेंगे।'],'A','“कृपया” के साथ “करके” अनावश्यक है; “कृपया बैठिए” शुद्ध है.'],
+            ['पर्यायवाची', '“पृथ्वी” का पर्यायवाची कौन-सा है?', ['आकाश','धरती','अग्नि','वायु'],'B','धरती पृथ्वी का पर्यायवाची है.'],
+            ['विलोम शब्द', '“उन्नति” का विलोम शब्द कौन-सा है?', ['प्रगति','अवनति','विकास','समृद्धि'],'B','उन्नति का विपरीत अर्थ अवनति है.'],
+            ['काल', '“हम अगले सप्ताह परीक्षा देंगे।” यह किस काल का उदाहरण है?', ['भूतकाल','वर्तमान काल','भविष्यत् काल','पूर्ण भूतकाल'],'C','“देंगे” आने वाले समय का बोध कराता है, इसलिए भविष्यत् काल है.']
+        ];
+        return rows.map((r,i)=>({id:-1000-i,question_text:r[1],chapter_name:r[0],chapter_number:String(i+1),marks:1,easy_answer:r[4],option_a:r[2][0],option_b:r[2][1],option_c:r[2][2],option_d:r[2][3],correct_option:r[3],solution:`Step 1: प्रश्नातील मुख्य शब्द/नियम ओळखा.\nStep 2: ${r[4]}\nStep 3: योग्य पर्याय ${r[3]} आहे.\nAnswer: ${r[4]}`,dynamically_built:true,source_type:'PRACTICE'}));
+    }
+    if(name==='sanskrit composite'){
+        const rows=[
+            ['शब्दरूप', '“रामः” शब्दस्य द्वितीया एकवचनरूपं किम्?', ['रामम्','रामः','रामेण','रामाय'],'A','“राम” अकारान्त पुल्लिङ्ग शब्दस्य द्वितीया एकवचनम् “रामम्” भवति.'],
+            ['शब्दरूप', '“फलम्” शब्दस्य प्रथमा बहुवचनरूपं किम्?', ['फलः','फलानि','फले','फलम्'],'B','नपुंसकलिङ्ग अकारान्त शब्दस्य प्रथमा बहुवचनम् “फलानि” भवति.'],
+            ['शब्दरूप', '“बालिका” शब्दस्य तृतीया एकवचनरूपं किम्?', ['बालिकाम्','बालिकया','बालिकायै','बालिकायाः'],'B','आकारान्त स्त्रीलिङ्ग शब्दस्य तृतीया एकवचनम् “बालिकया” भवति.'],
+            ['विभक्ति', '“गुरवे नमः” इत्यत्र “गुरवे” का विभक्तिः?', ['प्रथमा','द्वितीया','चतुर्थी','सप्तमी'],'C','“नमः” योगे चतुर्थी विभक्तिः प्रयुज्यते; “गुरवे” चतुर्थी एकवचनम्.'],
+            ['विभक्ति', '“गृहे बालकः अस्ति” इत्यत्र “गृहे” का विभक्तिः?', ['तृतीया','चतुर्थी','षष्ठी','सप्तमी'],'D','स्थानवाचक अर्थे “गृहे” सप्तमी एकवचनम्.'],
+            ['लकार', '“रामः पठति।” अत्र “पठति” कः लकारः?', ['लट्','लङ्','लृट्','लोट्'],'A','“पठति” वर्तमानकालस्य क्रियारूपम्, अतः लट् लकारः.'],
+            ['लकार', '“रामः अपठत्।” अत्र “अपठत्” कः लकारः?', ['लट्','लङ्','लृट्','विधिलिङ्'],'B','“अपठत्” भूतकालं दर्शयति, अतः लङ् लकारः.'],
+            ['लकार', '“रामः पठिष्यति।” अत्र “पठिष्यति” कः लकारः?', ['लट्','लङ्','लृट्','लोट्'],'C','“पठिष्यति” भविष्यत्कालं दर्शयति, अतः लृट् लकारः.'],
+            ['लोट्', '“पठतु” इत्यस्य अर्थः कः?', ['पठति','पठत्','पठिष्यति','पठो/पठतु इति आज्ञा'],'D','“पठतु” आज्ञार्थक रूपम्; अतः लोट् लकारः.'],
+            ['धातुरूप', '“गम्” धातोः लट् लकारे प्रथमपुरुष एकवचनरूपं किम्?', ['गच्छति','अगच्छत्','गमिष्यति','गच्छतु'],'A','गम् धातोः वर्तमानकाले प्रथमपुरुष एकवचनम् “गच्छति”.'],
+            ['संधि', '“देव + आलयः” इत्यस्य संधिरूपं किम्?', ['देवालयः','देवालायः','देवालयम्','देवालये'],'A','देव + आलयः = देवालयः.'],
+            ['संधि', '“विद्या + अर्थी” इत्यस्य योग्यरूपं किम्?', ['विद्यार्थी','विद्यार्थि','विद्यर्थी','विद्याअर्थी'],'A','विद्या + अर्थी = विद्यार्थी.'],
+            ['समास', '“राजपुत्रः” इत्यत्र कः समासः?', ['द्वन्द्वः','तत्पुरुषः','बहुव्रीहिः','अव्ययीभावः'],'B','“राज्ञः पुत्रः” इति षष्ठी तत्पुरुष समासः.'],
+            ['समास', '“नीलकमलम्” इत्यत्र कः समासः?', ['कर्मधारयः','द्वन्द्वः','बहुव्रीहिः','अव्ययीभावः'],'A','“नीलं कमलम्” विशेषण-विशेष्य सम्बन्धः, अतः कर्मधारयः.'],
+            ['अव्यय', '“अत्र” इति कः शब्दभेदः?', ['संज्ञा','सर्वनाम','अव्ययम्','धातुः'],'C','“अत्र” अव्ययम् अस्ति; अस्य रूपपरिवर्तनं न भवति.'],
+            ['सर्वनाम', '“अहम् विद्यालयं गच्छामि।” अत्र “अहम्” किम्?', ['संज्ञा','सर्वनाम','विशेषणम्','क्रिया'],'B','“अहम्” वक्तृवाचक सर्वनामम्.'],
+            ['विशेषण', '“सुन्दरः बालकः” इत्यत्र “सुन्दरः” किम्?', ['विशेषणम्','क्रिया','अव्ययम्','सर्वनाम'],'A','“सुन्दरः” बालकस्य गुणं दर्शयति, अतः विशेषणम्.'],
+            ['अनुवाद', '“बालकः पुस्तकं पठति।” अस्य योग्यः हिन्दी-अर्थः कः?', ['बालक पुस्तक पढ़ता है।','बालक खेलता है।','बालिका पुस्तक पढ़ती है।','बालक विद्यालय जाता है।'],'A','“बालकः” = बालक, “पुस्तकं” = पुस्तक, “पठति” = पढ़ता है.'],
+            ['अनुवाद', '“सीता फलम् खादति।” अस्य योग्यः हिन्दी-अर्थः कः?', ['सीता फल खाती है।','सीता जल पीती है।','राम फल खाता है।','सीता पुस्तक पढ़ती है।'],'A','“सीता” कर्ता, “फलम्” कर्म और “खादति” = खाती है.'],
+            ['वचन', '“बालकाः” इति कस्य वचनस्य रूपम्?', ['एकवचनम्','द्विवचनम्','बहुवचनम्','नपुंसकलिङ्गम्'],'C','“बालकाः” अनेक बालकों का बोध कराता है, अतः बहुवचनम्.']
+        ];
+        return rows.map((r,i)=>({id:-2000-i,question_text:r[1],chapter_name:r[0],chapter_number:String(i+1),marks:1,easy_answer:r[4],option_a:r[2][0],option_b:r[2][1],option_c:r[2][2],option_d:r[2][3],correct_option:r[3],solution:`Step 1: प्रश्नातील संस्कृत व्याकरणाचा नियम ओळखा.\nStep 2: ${r[4]}\nStep 3: योग्य पर्याय ${r[3]} आहे.\nAnswer: ${r[4]}`,dynamically_built:true,source_type:'PRACTICE'}));
+    }
+    return [];
+}
+
 async function startMockTest(subjectId,subjectName){
     const sid=localStorage.getItem('studentId');const container=document.getElementById('subjectsContainer');
-    try{const cr=await fetch(`${API_URL}/api/subjects/${subjectId}/chapters?studentId=${sid}`);const chapters=await cr.json();const qs=[];for(const ch of chapters){if(qs.length>=80)break;const r=await fetch(`${API_URL}/api/chapters/${ch.id}/questions`);const arr=await r.json();for(const q of arr){if(q.easy_answer&&String(q.easy_answer).trim())qs.push({...q,chapter_number:ch.chapter_number,chapter_name:ch.chapter_name});if(qs.length>=80)break;}}if(qs.length<20){alert(`${subjectName} has only ${qs.length} questions with answers. At least 20 are required.`);return;}const pool=qs.map(q=>q.easy_answer).filter(Boolean);const built=qs.sort(()=>Math.random()-0.5).map(q=>buildLocalMockQuestion(q,pool)).filter(Boolean).slice(0,20);if(built.length<20){alert('Unable to prepare 20 MCQs for this subject.');return;}mockTestState={testId:null,subjectId,subjectName,questions:built,answers:{},timer:null,seconds:30*60,localMode:true};renderMockTest(subjectName);startMockTimer();}catch(e){console.error(e);container.innerHTML='<p>Unable to prepare this mock test.</p>';}
+    try{
+        // Hindi/Sanskrit Composite currently have no reliable answered rows in the
+        // imported bank. Use a clearly-labelled built-in practice bank instead of
+        // showing an empty/zero-question mock test.
+        let qs=getCompositeMockQuestions(subjectName);
+        if(!qs.length){
+            const cr=await fetch(`${API_URL}/api/subjects/${subjectId}/chapters?studentId=${sid}`);const chapters=await cr.json();qs=[];
+            for(const ch of chapters){if(qs.length>=80)break;const r=await fetch(`${API_URL}/api/chapters/${ch.id}/questions`);const arr=await r.json();for(const q of arr){
+                const ans=String(q.easy_answer||q.answer||q.correct_answer||q.solution||'').trim();
+                if(ans)qs.push({...q,easy_answer:ans,chapter_number:ch.chapter_number,chapter_name:ch.chapter_name});
+                if(qs.length>=80)break;
+            }}
+            if(qs.length<20){alert(`${subjectName} has only ${qs.length} usable answered questions. At least 20 are required.`);return;}
+            const pool=qs.map(q=>q.easy_answer).filter(Boolean);qs=qs.sort(()=>Math.random()-0.5).map(q=>buildLocalMockQuestion(q,pool)).filter(Boolean).slice(0,20);
+        }
+        if(qs.length<20){alert(`Unable to prepare 20 MCQs for ${subjectName}.`);return;}
+        // Give every mock question an explicit chapter/topic label so students know
+        // which lesson/topic the question belongs to.
+        qs=qs.slice(0,20).map((q,i)=>({...q,mock_number:i+1,chapter_name:String(q.chapter_name||'Practice Topic').trim()}));
+        mockTestState={testId:null,subjectId,subjectName,questions:qs,answers:{},timer:null,seconds:30*60,localMode:true};renderMockTest(subjectName);startMockTimer();
+    }catch(e){console.error(e);container.innerHTML='<p>Unable to prepare this mock test.</p>';}
 }
 function startMockTimer(){clearInterval(mockTestState.timer);mockTestState.timer=setInterval(()=>{mockTestState.seconds--;const el=document.getElementById('mockTimer');if(el)el.textContent=`⏱ ${Math.floor(mockTestState.seconds/60)}:${String(mockTestState.seconds%60).padStart(2,'0')}`;if(mockTestState.seconds<=0){clearInterval(mockTestState.timer);submitMockTest(true);}},1000);}
 function renderMockTest(subjectName){
-    const c=document.getElementById('subjectsContainer');c.innerHTML=`<h2>📝 ${mockEscape(subjectName)} – Automatic MCQ Test</h2><div id="mockTimer" style="font-weight:bold">⏱ 30:00</div><p>Select one answer for every question.</p><div id="mockQuestions"></div><button id="submitMock" style="margin-top:15px">✅ Submit Test</button>`;
-    const box=document.getElementById('mockQuestions');mockTestState.questions.forEach((q,i)=>{const d=document.createElement('div');d.style.margin='16px 0';d.className='question-box';d.innerHTML=`<b>Q${i+1}. ${mockEscape(q.question_text)}</b><div style="margin-top:8px"><label><input type="radio" name="q${q.id}" value="A"> A. ${mockEscape(q.option_a)}</label><br><label><input type="radio" name="q${q.id}" value="B"> B. ${mockEscape(q.option_b)}</label><br><label><input type="radio" name="q${q.id}" value="C"> C. ${mockEscape(q.option_c)}</label><br><label><input type="radio" name="q${q.id}" value="D"> D. ${mockEscape(q.option_d)}</label></div>`;box.appendChild(d);d.querySelectorAll('input').forEach(x=>x.onchange=()=>mockTestState.answers[q.id]=x.value);});document.getElementById('submitMock').onclick=()=>submitMockTest(false);
+    const c=document.getElementById('subjectsContainer');c.innerHTML=`<h2>📝 ${mockEscape(subjectName)} – Automatic MCQ Test</h2><div id="mockTimer" style="font-weight:bold">⏱ 30:00</div><p>Select one answer for every question.</p><div class="question-box" style="border-left:4px solid #2b65ec"><strong>📚 Chapter-wise Practice</strong><br>प्रत्येक प्रश्नाखाली त्याचा Chapter / Topic दिलेला आहे. Composite subjects मधील हे questions <strong>practice questions</strong> आहेत; ते official PYQs म्हणून दाखवलेले नाहीत.</div><div id="mockQuestions"></div><button id="submitMock" style="margin-top:15px">✅ Submit Test</button>`;
+    const box=document.getElementById('mockQuestions');mockTestState.questions.forEach((q,i)=>{const d=document.createElement('div');d.style.margin='16px 0';d.className='question-box';d.innerHTML=`<b>Q${i+1}. ${mockEscape(q.question_text)}</b><p style="margin:6px 0">📖 <strong>Chapter / Topic:</strong> ${mockEscape(q.chapter_name||'Practice Topic')}</p><div style="margin-top:8px"><label><input type="radio" name="q${q.id}" value="A"> A. ${mockEscape(q.option_a)}</label><br><label><input type="radio" name="q${q.id}" value="B"> B. ${mockEscape(q.option_b)}</label><br><label><input type="radio" name="q${q.id}" value="C"> C. ${mockEscape(q.option_c)}</label><br><label><input type="radio" name="q${q.id}" value="D"> D. ${mockEscape(q.option_d)}</label></div>`;box.appendChild(d);d.querySelectorAll('input').forEach(x=>x.onchange=()=>mockTestState.answers[q.id]=x.value);});document.getElementById('submitMock').onclick=()=>submitMockTest(false);
 }
 async function submitMockTest(auto){
     clearInterval(mockTestState.timer);const unanswered=mockTestState.questions.length-Object.keys(mockTestState.answers).length;if(!auto&&unanswered>0&&!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)){startMockTimer();return;}
