@@ -4239,19 +4239,87 @@ async function loadMockTest() {
     } catch(e){console.error(e);container.innerHTML='<p>Unable to load MCQ Mock Test subjects.</p>';}
 }
 function mockEscape(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function mockSubjectName(q){return String(q.subject_name||'').toLowerCase();}
+function mockText(q){return String(q.question_text||'').trim();}
+function mockAnswer(q){return String(q.easy_answer||'').trim();}
+function numFmt(n){return Number.isInteger(n)?String(n):String(Number(n.toFixed(4)));}
+
+// STEP 76 QUALITY FIX: build mathematically meaningful options instead of
+// mixing unrelated answers from other questions.
+function deriveReliableMath(q){
+    const t=mockText(q), a=mockAnswer(q);
+    let m=t.match(/(?:mean of (?:the )?data)[:\s]+([\d,\.\s\-]+)/i);
+    if(m){const ns=m[1].split(',').map(Number).filter(Number.isFinite);if(ns.length){const sum=ns.reduce((x,y)=>x+y,0),mean=sum/ns.length;return {answer:numFmt(mean),solution:`Step 1: Add the observations: ${ns.join(' + ')} = ${numFmt(sum)}.\nStep 2: Number of observations = ${ns.length}.\nStep 3: Mean = Sum ÷ Number of observations = ${numFmt(sum)} ÷ ${ns.length} = ${numFmt(mean)}.\nAnswer: ${numFmt(mean)}.`};}}
+    m=t.match(/(?:10th|\d+(?:st|nd|rd|th)) term of (?:the )?arithmetic progression\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+    if(m){const n=Number((t.match(/(\d+)(?:st|nd|rd|th)/i)||[])[1]||10),a1=Number(m[1]),d=Number(m[2])-a1,ans=a1+(n-1)*d;return {answer:numFmt(ans),solution:`Step 1: First term a = ${a1}, common difference d = ${d}.\nStep 2: Use aₙ = a + (n − 1)d.\nStep 3: a${n} = ${a1} + (${n} − 1)(${d}) = ${numFmt(ans)}.\nAnswer: ${numFmt(ans)}.`};}
+    m=t.match(/(?:sum of )?(?:the )?first\s+(\d+)\s+terms? of (?:the )?A\.?P\.?\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+    if(m){const n=Number(m[1]),a1=Number(m[2]),d=Number(m[3])-a1,ans=n*(2*a1+(n-1)*d)/2;return {answer:numFmt(ans),solution:`Step 1: a = ${a1}, d = ${d}, n = ${n}.\nStep 2: Use Sₙ = n/2 [2a + (n − 1)d].\nStep 3: S${n} = ${n}/2 [2(${a1}) + (${n} − 1)(${d})] = ${numFmt(ans)}.\nAnswer: ${numFmt(ans)}.`};}
+    m=t.match(/(?:discriminant of|discriminant).*?([\d]+)x[²2]\s*([+\-])\s*([\d]+)x\s*([+\-])\s*([\d]+)/i);
+    if(m){const A=Number(m[1]),B=(m[2]=='-'?-1:1)*Number(m[3]),C=(m[4]=='-'?-1:1)*Number(m[5]),D=B*B-4*A*C;return {answer:numFmt(D),solution:`Step 1: Compare with ax² + bx + c = 0: a = ${A}, b = ${B}, c = ${C}.\nStep 2: D = b² − 4ac.\nStep 3: D = (${B})² − 4(${A})(${C}) = ${numFmt(D)}.\nStep 4: Since D ${D>0?'>':'='} 0, the nature of roots follows accordingly.\nAnswer: D = ${numFmt(D)}.`};}
+    m=t.match(/(\d+)x\s*\+\s*(\d+)y\s*=\s*(\-?\d+)\s+and\s+(\d*)x\s*\+\s*(\d+)y\s*=\s*(\-?\d+)/i);
+    if(m){const A=+m[1],B=+m[2],C=+m[3],D=+(m[4]||1),E=+m[5],F=+m[6],det=A*E-D*B;if(det){const x=(C*E-F*B)/det,y=(A*F-D*C)/det,fx=numFmt(x),fy=numFmt(y);return {answer:`x = ${fx}, y = ${fy}`,solution:`Step 1: Equations: ${A}x + ${B}y = ${C} and ${D}x + ${E}y = ${F}.\nStep 2: Eliminate one variable.\nStep 3: x = ${fx}.\nStep 4: Substitute x back to obtain y = ${fy}.\nAnswer: x = ${fx}, y = ${fy}.`};}}
+    m=t.match(/graph of\s*x\s*\+\s*y\s*=\s*(\d+)/i);
+    if(m){const k=Number(m[1]),area=k*k/2;return {answer:`Right isosceles triangle; area = ${numFmt(area)} square units`,solution:`Step 1: For x + y = ${k}, the x-intercept is (${k}, 0) and the y-intercept is (0, ${k}).\nStep 2: The triangle has perpendicular sides ${k} and ${k}.\nStep 3: Area = 1/2 × base × height = 1/2 × ${k} × ${k} = ${numFmt(area)} square units.\nStep 4: The two legs are equal, so it is a right isosceles triangle.\nAnswer: Area = ${numFmt(area)} square units.`};}
+    m=t.match(/(?:sides|legs)\s*(?:are|of)\s*(\d+(?:\.\d+)?)\s*(?:cm)?\s*and\s*(\d+(?:\.\d+)?).*hypotenuse/i);
+    if(m){const x=+m[1],y=+m[2],z=Math.sqrt(x*x+y*y);return {answer:numFmt(z),solution:`Step 1: Use c² = a² + b².\nStep 2: c² = ${x}² + ${y}² = ${numFmt(x*x+y*y)}.\nStep 3: c = √${numFmt(x*x+y*y)} = ${numFmt(z)}.\nAnswer: ${numFmt(z)}.`};}
+    m=t.match(/check whether\s*\((\-?\d+(?:\.\d+)?),\s*(\-?\d+(?:\.\d+)?)\)\s*satisfies\s*(\d+)x\s*\+\s*(\d+)y\s*=\s*(\-?\d+)/i);
+    if(m){const x=+m[1],y=+m[2],A=+m[3],B=+m[4],C=+m[5],lhs=A*x+B*y;return {answer:lhs===C?'Yes, because LHS = RHS':'No, because LHS ≠ RHS',solution:`Step 1: Substitute x = ${x}, y = ${y}.\nStep 2: LHS = ${A}(${x}) + ${B}(${y}) = ${numFmt(lhs)}.\nStep 3: RHS = ${C}.\nStep 4: ${lhs===C?'LHS = RHS, so the point satisfies the equation.':'LHS ≠ RHS, so the point does not satisfy the equation.'}\nAnswer: ${lhs===C?'Yes':'No'}.`};}
+    return null;
+}
+
+function numericDistractors(correct){
+    const n=Number(String(correct).replace(/[^\d.\-]/g,''));
+    if(!Number.isFinite(n))return [];
+    const d=Math.max(1,Math.abs(n)>=10?5:1);
+    return [numFmt(n+d),numFmt(n-d),numFmt(n+2*d)].filter(x=>x!==numFmt(n));
+}
+function formulaDistractors(correct){
+    const s=String(correct);
+    const out=[];
+    const variants=[
+        s.replace(/\/r²|\/r2/gi,'/r'),
+        s.replace(/\/r/gi,'/r²'),
+        s.replace(/\+/g,'-'),
+        s.replace(/\-/g,'+'),
+        s.replace(/m₁m₂/g,'m₁+m₂')
+    ];
+    for(const v of variants){if(v&&v!==s&&!out.includes(v))out.push(v);if(out.length===3)break;}
+    return out;
+}
+function relatedAnswerDistractors(q,pool){
+    const keys=String(q.keywords||'').toLowerCase().split(/[;,|]/).map(x=>x.trim()).filter(Boolean);
+    const correct=mockAnswer(q);
+    const scored=[];
+    for(const v0 of pool){const v=String(v0||'').trim();if(!v||v===correct||scored.some(x=>x.v===v))continue;const low=v.toLowerCase();let score=0;for(const k of keys)if(low.includes(k)||k.includes(low.slice(0,Math.min(12,low.length))))score++;if(Math.abs(v.length-correct.length)<80)score++;scored.push({v,score});}
+    return scored.sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.v);
+}
 function buildLocalMockQuestion(q,pool){
-    const correct=String(q.easy_answer||'').trim(); if(!correct)return null;
+    let correct=mockAnswer(q),solution='';
+    const subj=mockSubjectName(q);
+    if(subj.includes('mathematics')){const d=deriveReliableMath(q);if(d){correct=d.answer;solution=d.solution;}}
+    if(!correct)return null;
     const existing=['A','B','C','D'].map(k=>q['option_'+k.toLowerCase()]);
-    if(existing.every(x=>String(x||'').trim())&&['A','B','C','D'].includes(String(q.correct_option||'').toUpperCase()))return {...q,solution:q.mcq_explanation||buildLocalSolution(q)};
-    const ds=[];for(const a of pool){const v=String(a||'').trim();if(v&&v!==correct&&!ds.includes(v))ds.push(v);if(ds.length===3)break;}while(ds.length<3)ds.push('None of the above');const pos=(Number(q.id)*7+3)%4,opts=[...ds];opts.splice(pos,0,correct);return {...q,option_a:opts[0],option_b:opts[1],option_c:opts[2],option_d:opts[3],correct_option:'ABCD'[pos],solution:buildLocalSolution(q)};
+    if(existing.every(x=>String(x||'').trim())&&['A','B','C','D'].includes(String(q.correct_option||'').toUpperCase()))return {...q,solution:q.mcq_explanation||solution||buildLocalSolution(q)};
+    let ds=[];
+    if(/^[\-+]?\d+(?:\.\d+)?$/.test(correct))ds=numericDistractors(correct);
+    if(ds.length<3 && /[=²\/]/.test(correct))ds=[...ds,...formulaDistractors(correct)];
+    if(ds.length<3)ds=[...ds,...relatedAnswerDistractors(q,pool)];
+    while(ds.length<3)ds.push('None of the above');
+    ds=[...new Set(ds)].filter(x=>x!==correct).slice(0,3);
+    while(ds.length<3)ds.push('None of the above');
+    const pos=Math.abs((Number(q.id)||0)*7+3)%4,opts=[...ds];opts.splice(pos,0,correct);
+    return {...q,easy_answer:correct,option_a:opts[0],option_b:opts[1],option_c:opts[2],option_d:opts[3],correct_option:'ABCD'[pos],solution:solution||buildLocalSolution({...q,easy_answer:correct}),dynamically_built:true};
 }
 function buildLocalSolution(q){
-    const t=String(q.question_text||''),a=String(q.easy_answer||''),h=String(q.hint||'');
-    let m=t.match(/mean of (?:the )?data[:\s]+([\d,\.\s\-]+)/i);if(m){const n=m[1].split(',').map(Number).filter(Number.isFinite),sum=n.reduce((x,y)=>x+y,0);return `Step 1: Sum = ${n.join(' + ')} = ${sum}.\nStep 2: Number of observations = ${n.length}.\nStep 3: Mean = ${sum} ÷ ${n.length} = ${sum/n.length}.\nAnswer: ${a||sum/n.length}.`;}
-    m=t.match(/quadratic equation\s*([0-9]+)?x[²2]\s*([+\-])\s*([0-9]+)x\s*([+\-])\s*([0-9]+)/i);if(m){const A=Number(m[1]||1),B=(m[2]==='-'?-1:1)*Number(m[3]),C=(m[4]==='-'?-1:1)*Number(m[5]),D=B*B-4*A*C;if(D>=0){const r1=(-B+Math.sqrt(D))/(2*A),r2=(-B-Math.sqrt(D))/(2*A);return `Step 1: a=${A}, b=${B}, c=${C}.\nStep 2: D=b²−4ac=${D}.\nStep 3: x=[−b±√D]/2a.\nAnswer: x=${r1}, ${r2}.`;}}
-    if(h)return `Step 1: Understand the question.\nStep 2: ${h}\nStep 3: Apply the rule/formula to the given information.\nStep 4: Answer: ${a}`;
-    return a?`Step 1: Identify the required concept.\nStep 2: Apply the rule/formula described in the question.\nStep 3: Answer: ${a}`:'Solution not available.';
+    const d=deriveReliableMath(q);if(d)return d.solution;
+    const t=mockText(q),a=mockAnswer(q),h=String(q.hint||'').trim();
+    const parts=['Step 1: Understand what the question is asking.'];
+    if(h)parts.push(`Step 2: Method / Hint — ${h}`);
+    parts.push('Step 3: Apply the required rule, formula or concept to the given information.');
+    if(a)parts.push(`Step 4: Final answer — ${a}`);else parts.push('Step 4: Solution not available in the source data.');
+    return parts.join('\n');
 }
+
 async function startMockTest(subjectId,subjectName){
     const sid=localStorage.getItem('studentId');const container=document.getElementById('subjectsContainer');
     try{const cr=await fetch(`${API_URL}/api/subjects/${subjectId}/chapters?studentId=${sid}`);const chapters=await cr.json();const qs=[];for(const ch of chapters){if(qs.length>=80)break;const r=await fetch(`${API_URL}/api/chapters/${ch.id}/questions`);const arr=await r.json();for(const q of arr){if(q.easy_answer&&String(q.easy_answer).trim())qs.push({...q,chapter_number:ch.chapter_number,chapter_name:ch.chapter_name});if(qs.length>=80)break;}}if(qs.length<20){alert(`${subjectName} has only ${qs.length} questions with answers. At least 20 are required.`);return;}const pool=qs.map(q=>q.easy_answer).filter(Boolean);const built=qs.sort(()=>Math.random()-0.5).map(q=>buildLocalMockQuestion(q,pool)).filter(Boolean).slice(0,20);if(built.length<20){alert('Unable to prepare 20 MCQs for this subject.');return;}mockTestState={testId:null,subjectId,subjectName,questions:built,answers:{},timer:null,seconds:30*60,localMode:true};renderMockTest(subjectName);startMockTimer();}catch(e){console.error(e);container.innerHTML='<p>Unable to prepare this mock test.</p>';}
