@@ -915,6 +915,30 @@ async function loadQuestions(
 // Visual → Easy Answer → Keywords → Self Check → Save Status
 // Additive only; uses the existing question data.
 // ================================================
+function evaluateSmartSelfAnswer(userAnswer, question) {
+    const raw = String(userAnswer || '').trim();
+    const answer = String(question.easy_answer || '').trim();
+    const keywordRaw = String(question.keywords || '').trim();
+    const norm = value => String(value || '').toLowerCase()
+        .replace(/[^\p{L}\p{N}²³⁴⁵₀₁₂₃₄₅₆₇₈₉+\-./=%√]/gu, ' ')
+        .replace(/\s+/g, ' ').trim();
+    const u = norm(raw), a = norm(answer);
+    if (!u) return {level:'empty', title:'✍️ उत्तर लिहिलेले नाही', message:'आधी स्वतःचे उत्तर लिहा. नंतर Check Answer करा.'};
+    if (u === a || (a && u.includes(a)) || (u && a.includes(u) && u.length >= 8)) {
+        return {level:'strong', title:'🌟 Strong Match', message:'तुमचे उत्तर Easy Answer शी चांगले जुळते. तरीही textbook मधील keywords एकदा तपासा.'};
+    }
+    const keywordList = keywordRaw.split(/[;,|]/).map(norm).filter(x => x.length >= 2);
+    const sourceWords = keywordList.length ? keywordList : a.split(/\s+/).filter(x => x.length >= 4).slice(0, 8);
+    const matched = sourceWords.filter(k => u.includes(k) || k.split(/\s+/).every(w => w && u.includes(w)));
+    const numericU = (u.match(/[-+]?\d+(?:\.\d+)?/g) || []);
+    const numericA = (a.match(/[-+]?\d+(?:\.\d+)?/g) || []);
+    const numberMatch = numericA.length && numericA.some(n => numericU.includes(n));
+    if (numberMatch || (sourceWords.length && matched.length >= Math.max(1, Math.ceil(sourceWords.length * 0.5)))) {
+        return {level:'partial', title:'🟡 Partial Match', message:`तुमच्या उत्तरात ${matched.length || (numberMatch ? 1 : 0)} महत्त्वाचा भाग/keyword जुळतो. पूर्ण उत्तरासाठी Easy Answer आणि Keywords पुन्हा वाचा.`};
+    }
+    return {level:'weak', title:'🔄 Needs Revision', message:'तुमचे उत्तर source answer शी पुरेसे जुळत नाही. Easy Answer + Keywords पुन्हा पाहा आणि स्वतःचे उत्तर पुन्हा लिहा.'};
+}
+
 function startSmartQuestionLearning(question, subject, chapter, questionBox) {
     const safeText = value => dailyPracticeEscape(value == null ? "" : value);
     const existing = questionBox.querySelector(".smart-learning-panel");
@@ -965,6 +989,7 @@ function startSmartQuestionLearning(question, subject, chapter, questionBox) {
             <h4>🎓 Step 5 of 5 — Check & Save</h4>
             <p>तुमचे उत्तर योग्य असेल तर <strong>👍 I Know This</strong> निवडा. अजून सराव हवा असेल तर <strong>🔄 Need Revision</strong> निवडा.</p>
             <div class="question-box"><p><strong>Easy Answer:</strong><br>${safeText(answer)}</p></div>
+            <div class="question-box smart-check-result" style="display:none;margin-top:10px;"></div>
             <button class="smart-known">👍 I Know This</button>
             <button class="smart-revision">🔄 Need Revision</button>
             <button class="smart-close">✕ Close</button>
@@ -976,6 +1001,15 @@ function startSmartQuestionLearning(question, subject, chapter, questionBox) {
     const stages = [...panel.querySelectorAll(".smart-stage")];
     panel.querySelectorAll(".smart-next").forEach((button, index) => {
         button.addEventListener("click", () => {
+            if (index === 3) {
+                const selfAnswer = panel.querySelector(".smart-self-answer")?.value || "";
+                const check = evaluateSmartSelfAnswer(selfAnswer, question);
+                const box = panel.querySelector(".smart-check-result");
+                if (box) {
+                    box.innerHTML = `<strong>${safeText(check.title)}</strong><br><span>${safeText(check.message)}</span>`;
+                    box.style.display = "block";
+                }
+            }
             stages.forEach((stage, i) => stage.style.display = i === index + 1 ? "block" : "none");
         });
     });
