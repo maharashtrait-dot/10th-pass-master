@@ -4270,6 +4270,49 @@ function deriveReliableMath(q){
     if(m){const x=+m[1],y=+m[2],z=Math.sqrt(x*x+y*y);return {answer:numFmt(z),solution:`Step 1: Use c² = a² + b².\nStep 2: c² = ${x}² + ${y}² = ${numFmt(x*x+y*y)}.\nStep 3: c = √${numFmt(x*x+y*y)} = ${numFmt(z)}.\nAnswer: ${numFmt(z)}.`};}
     m=t.match(/check whether\s*\((\-?\d+(?:\.\d+)?),\s*(\-?\d+(?:\.\d+)?)\)\s*satisfies\s*(\d+)x\s*\+\s*(\d+)y\s*=\s*(\-?\d+)/i);
     if(m){const x=+m[1],y=+m[2],A=+m[3],B=+m[4],C=+m[5],lhs=A*x+B*y;return {answer:lhs===C?'Yes, because LHS = RHS':'No, because LHS ≠ RHS',solution:`Step 1: Substitute x = ${x}, y = ${y}.\nStep 2: LHS = ${A}(${x}) + ${B}(${y}) = ${numFmt(lhs)}.\nStep 3: RHS = ${C}.\nStep 4: ${lhs===C?'LHS = RHS, so the point satisfies the equation.':'LHS ≠ RHS, so the point does not satisfy the equation.'}\nAnswer: ${lhs===C?'Yes':'No'}.`};}
+    // STEP 80: additional safe Mathematics derivations.
+    m=t.match(/probability.*?(?:favourable|desired|successful)\s*(?:outcomes?|cases?)\s*(?:are|=)\s*(\d+).*?(?:total|possible)\s*(?:outcomes?|cases?)\s*(?:are|=)\s*(\d+)/i);
+    if(m){const f=+m[1],n=+m[2],p=f/n;return {answer:numFmt(p),solution:`Step 1: Favourable outcomes = ${f}; total outcomes = ${n}.\nStep 2: P(E) = favourable outcomes ÷ total outcomes.\nStep 3: P(E) = ${f}/${n} = ${numFmt(p)}.\nAnswer: ${numFmt(p)}.`};}
+    m=t.match(/(?:roots?|solutions?).*?(?:equation|quadratic).*?(\d+)x[²2]\s*([+\-])\s*(\d+)x\s*([+\-])\s*(\d+)/i);
+    if(m){const A=+m[1],B=(m[2]==='-'?-1:1)*+m[3],C=(m[4]==='-'?-1:1)*+m[5],D=B*B-4*A*C;if(D>=0){const r1=(-B+Math.sqrt(D))/(2*A),r2=(-B-Math.sqrt(D))/(2*A);return {answer:`x = ${numFmt(r1)}, ${numFmt(r2)}`,solution:`Step 1: a = ${A}, b = ${B}, c = ${C}.\nStep 2: D = b² − 4ac = ${numFmt(D)}.\nStep 3: x = (−b ± √D)/(2a).\nStep 4: x = ${numFmt(r1)} or ${numFmt(r2)}.\nAnswer: x = ${numFmt(r1)}, ${numFmt(r2)}.`};}}
+    return null;
+}
+
+// STEP 79 QUALITY FIX: science step-by-step derivations and meaningful numeric MCQ options.
+function deriveReliableScience(q){
+    const t=mockText(q), a=mockAnswer(q);
+    let m;
+    // Ohm's law / electric current
+    m=t.match(/(?:voltage|potential difference)\s*(?:is|=)\s*(\d+(?:\.\d+)?)\s*V.*?(?:resistance|R)\s*(?:is|=)\s*(\d+(?:\.\d+)?)\s*(?:ohm|Ω)/i);
+    if(m){const V=+m[1],R=+m[2],I=V/R;return {answer:numFmt(I)+' A',solution:`Step 1: Given voltage V = ${V} V and resistance R = ${R} Ω.\nStep 2: Use Ohm's law: V = IR.\nStep 3: I = V ÷ R = ${V} ÷ ${R} = ${numFmt(I)} A.\nAnswer: I = ${numFmt(I)} A.`};}
+    // Current from charge and time
+    m=t.match(/(?:charge|Q)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*C.*?(?:time|t)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*s/i);
+    if(m){const Q=+m[1],tt=+m[2],I=Q/tt;return {answer:numFmt(I)+' A',solution:`Step 1: Charge Q = ${Q} C and time t = ${tt} s.\nStep 2: Use I = Q/t.\nStep 3: I = ${Q} ÷ ${tt} = ${numFmt(I)} A.\nAnswer: ${numFmt(I)} A.`};}
+    // Electrical power
+    m=t.match(/(?:voltage|potential difference)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*V.*?(?:current|I)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*A.*?(?:power|P)/i);
+    if(m){const V=+m[1],I=+m[2],P=V*I;return {answer:numFmt(P)+' W',solution:`Step 1: V = ${V} V and I = ${I} A.\nStep 2: Use P = VI.\nStep 3: P = ${V} × ${I} = ${numFmt(P)} W.\nAnswer: P = ${numFmt(P)} W.`};}
+    // Work done
+    m=t.match(/(?:force|F)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*N.*?(?:distance|displacement|d)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*m.*?(?:work|W)/i);
+    if(m){const F=+m[1],d=+m[2],W=F*d;return {answer:numFmt(W)+' J',solution:`Step 1: Force F = ${F} N and displacement d = ${d} m.\nStep 2: Use W = F × d (for force along displacement).\nStep 3: W = ${F} × ${d} = ${numFmt(W)} J.\nAnswer: W = ${numFmt(W)} J.`};}
+    // Speed
+    m=t.match(/(?:distance|d)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*(?:km|m).*?(?:time|t)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*(?:h|hr|hours?|s|sec)/i);
+    if(m){const dist=+m[1],time=+m[2]; if(time){return null;}}
+    // Density
+    m=t.match(/(?:mass|m)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*(?:g|kg).*?(?:volume|V)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*(?:cm³|cm3|m³|m3).*?(?:density|ρ)/i);
+    if(m){const mass=+m[1],vol=+m[2],rho=mass/vol;return {answer:numFmt(rho),solution:`Step 1: Mass = ${mass} and volume = ${vol}.\nStep 2: Density = Mass ÷ Volume.\nStep 3: ρ = ${mass} ÷ ${vol} = ${numFmt(rho)}.\nAnswer: ρ = ${numFmt(rho)} (in the given units).`};}
+    // Kinetic energy
+    m=t.match(/(?:mass|m)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*kg.*?(?:speed|velocity|v)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*m\/s.*?(?:kinetic energy|K\.E\.?)/i);
+    if(m){const mass=+m[1],v=+m[2],ke=.5*mass*v*v;return {answer:numFmt(ke)+' J',solution:`Step 1: m = ${mass} kg and v = ${v} m/s.\nStep 2: Use K.E. = ½mv².\nStep 3: K.E. = ½ × ${mass} × ${v}² = ${numFmt(ke)} J.\nAnswer: ${numFmt(ke)} J.`};}
+    // Potential energy
+    m=t.match(/(?:mass|m)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*kg.*?(?:height|h)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*m.*?(?:g|acceleration due to gravity)\s*(?:=|of)\s*(\d+(?:\.\d+)?)\s*m\/s².*?(?:potential energy|P\.E\.?)/i);
+    if(m){const mass=+m[1],h=+m[2],g=+m[3],pe=mass*g*h;return {answer:numFmt(pe)+' J',solution:`Step 1: m = ${mass} kg, h = ${h} m, g = ${g} m/s².\nStep 2: Use P.E. = mgh.\nStep 3: P.E. = ${mass} × ${g} × ${h} = ${numFmt(pe)} J.\nAnswer: ${numFmt(pe)} J.`};}
+    // STEP 80: additional safe Science derivations.
+    m=t.match(/(?:voltage|potential difference)\s*(?:is|=|of)\s*(\d+(?:\.\d+)?)\s*V.*?(?:current|I)\s*(?:is|=|of)\s*(\d+(?:\.\d+)?)\s*A.*?(?:resistance|R)/i);
+    if(m){const V=+m[1],I=+m[2],R=V/I;return {answer:numFmt(R)+' Ω',solution:`Step 1: V = ${V} V and I = ${I} A.\nStep 2: From V = IR, R = V ÷ I.\nStep 3: R = ${V} ÷ ${I} = ${numFmt(R)} Ω.\nAnswer: R = ${numFmt(R)} Ω.`};}
+    m=t.match(/(?:power|P)\s*(?:is|=|of)\s*(\d+(?:\.\d+)?)\s*W.*?(?:time|t)\s*(?:is|=|of)\s*(\d+(?:\.\d+)?)\s*(h|hr|hours?|s|sec).*?(?:electrical energy|energy)/i);
+    if(m){const P=+m[1],tt=+m[2],u=m[3].toLowerCase(),secs=/s|sec/.test(u)?tt:tt*3600,E=P*secs;return {answer:numFmt(E)+' J',solution:`Step 1: P = ${P} W and t = ${tt} ${u}.\nStep 2: Time = ${numFmt(secs)} s.\nStep 3: E = Pt = ${P} × ${numFmt(secs)} = ${numFmt(E)} J.\nAnswer: E = ${numFmt(E)} J.`};}
+    m=t.match(/(?:mass|m)\s*(?:of|=)\s*(\d+(?:\.\d+)?)\s*kg.*?(?:specific heat|specific heat capacity)\s*(?:of|=)\s*(\d+(?:\.\d+)?).*?(?:temperature change|change in temperature|ΔT)\s*(?:of|=)\s*(\d+(?:\.\d+)?).*?(?:heat|Q)/i);
+    if(m){const mass=+m[1],c=+m[2],dt=+m[3],Q=mass*c*dt;return {answer:numFmt(Q)+' J',solution:`Step 1: m = ${mass} kg, c = ${c} J/kg°C, ΔT = ${dt}°C.\nStep 2: Q = mcΔT.\nStep 3: Q = ${mass} × ${c} × ${dt} = ${numFmt(Q)} J.\nAnswer: Q = ${numFmt(Q)} J.`};}
     return null;
 }
 
@@ -4303,9 +4346,10 @@ function buildLocalMockQuestion(q,pool){
     let correct=mockAnswer(q),solution='';
     const subj=mockSubjectName(q);
     if(subj.includes('mathematics')){const d=deriveReliableMath(q);if(d){correct=d.answer;solution=d.solution;}}
+    if(subj.includes('science')){const d=deriveReliableScience(q);if(d){correct=d.answer;solution=d.solution;}}
     if(!correct)return null;
     const existing=['A','B','C','D'].map(k=>q['option_'+k.toLowerCase()]);
-    if(existing.every(x=>String(x||'').trim())&&['A','B','C','D'].includes(String(q.correct_option||'').toUpperCase()))return {...q,solution:q.mcq_explanation||solution||buildLocalSolution(q)};
+    if(existing.every(x=>String(x||'').trim())&&['A','B','C','D'].includes(String(q.correct_option||'').toUpperCase()))return {...q,solution:q.mcq_explanation||solution||buildLocalSolution(q),solution_type:(q.mcq_explanation||solution)?'STEP_BY_STEP':'EXPLANATION'};
     let ds=[];
     if(/^[\-+]?\d+(?:\.\d+)?$/.test(correct))ds=numericDistractors(correct);
     if(ds.length<3 && /[=²\/]/.test(correct))ds=[...ds,...formulaDistractors(correct)];
@@ -4314,10 +4358,11 @@ function buildLocalMockQuestion(q,pool){
     ds=[...new Set(ds)].filter(x=>x!==correct).slice(0,3);
     while(ds.length<3)ds.push('None of the above');
     const pos=Math.abs((Number(q.id)||0)*7+3)%4,opts=[...ds];opts.splice(pos,0,correct);
-    return {...q,easy_answer:correct,option_a:opts[0],option_b:opts[1],option_c:opts[2],option_d:opts[3],correct_option:'ABCD'[pos],solution:solution||buildLocalSolution({...q,easy_answer:correct}),dynamically_built:true};
+    return {...q,easy_answer:correct,option_a:opts[0],option_b:opts[1],option_c:opts[2],option_d:opts[3],correct_option:'ABCD'[pos],solution:solution||buildLocalSolution({...q,easy_answer:correct}),solution_type:solution?'STEP_BY_STEP':'EXPLANATION',dynamically_built:true};
 }
 function buildLocalSolution(q){
     const d=deriveReliableMath(q);if(d)return d.solution;
+    const sd=deriveReliableScience(q);if(sd)return sd.solution;
     const t=mockText(q),a=mockAnswer(q),h=String(q.hint||'').trim();
     const parts=['Step 1: Understand what the question is asking.'];
     if(h)parts.push(`Step 2: Method / Hint — ${h}`);
