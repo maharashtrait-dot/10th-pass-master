@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://one0th-pass-master.onrender.com/sitemap.xml
