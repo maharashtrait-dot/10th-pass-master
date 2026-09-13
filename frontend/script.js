@@ -1006,8 +1006,23 @@ function startSmartQuestionLearning(question, subject, chapter, questionBox) {
                 const check = evaluateSmartSelfAnswer(selfAnswer, question);
                 const box = panel.querySelector(".smart-check-result");
                 if (box) {
-                    box.innerHTML = `<strong>${safeText(check.title)}</strong><br><span>${safeText(check.message)}</span>`;
+                    const saveable = check.level === "strong" || check.level === "partial" || check.level === "weak";
+                    const suggestedStatus = check.level === "strong" ? "known" : "revision";
+                    const saveLabel = suggestedStatus === "known" ? "💾 Save as Known" : "🔄 Save for Revision";
+                    box.innerHTML = `<strong>${safeText(check.title)}</strong><br><span>${safeText(check.message)}</span>${saveable ? `<div style="margin-top:10px;"><button type="button" class="smart-self-save-result">${saveLabel}</button></div>` : ""}`;
                     box.style.display = "block";
+                    const saveBtn = box.querySelector(".smart-self-save-result");
+                    if (saveBtn) {
+                        saveBtn.addEventListener("click", async () => {
+                            const result = await saveProgress(question.id, suggestedStatus);
+                            if (result) {
+                                saveBtn.disabled = true;
+                                saveBtn.textContent = suggestedStatus === "known" ? "✅ Saved as Known" : "✅ Saved for Revision";
+                            } else {
+                                saveBtn.textContent = "⚠️ Save failed — use I Know / Need Revision";
+                            }
+                        });
+                    }
                 }
             }
             stages.forEach((stage, i) => stage.style.display = i === index + 1 ? "block" : "none");
