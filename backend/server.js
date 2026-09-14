@@ -5060,6 +5060,120 @@ app.get("/api/admin/question-quality-audit", async (req, res) => {
 });
 
 // ================================================
+// STAGE 10 STEP 32 - LIVE QUESTION-BANK CONTENT COMPLETENESS AUDIT
+// Checks every active question without changing any data.
+// ================================================
+function auditVisualHint(subject, text) {
+    const t = `${subject} ${text}`.toLowerCase();
+    const rules = [
+        [/mean|median|mode|statistics|frequency|data/, 'Statistics visual'],
+        [/probability|sample space|outcome|dice|die/, 'Probability visual'],
+        [/linear equation|two variables|straight line|coordinate/, 'Linear graph visual'],
+        [/quadratic|roots|discriminant/, 'Quadratic visual'],
+        [/circle|radius|diameter|chord/, 'Circle visual'],
+        [/pythagoras|right triangle|hypotenuse/, 'Pythagoras visual'],
+        [/trigonometry|sine|cosine|tangent/, 'Trigonometry visual'],
+        [/electric current|electric circuit|voltage|resistance|solenoid/, 'Electric circuit visual'],
+        [/chemical reaction|reactant|product|chemical equation/, 'Chemical reaction visual'],
+        [/gravitation|gravity|gravitational force/, 'Gravitation visual'],
+        [/democracy|election|constitution|voting|political party/, 'Civics visual'],
+        [/history|timeline|chronology|century|movement/, 'History timeline visual'],
+        [/latitude|longitude|location|direction|map/, 'Geography visual'],
+        [/diagram|figure|label|structure|circuit|ray|triangle|graph/, 'Diagram/graph visual']
+    ];
+    for (const [rx, label] of rules) if (rx.test(t)) return {required:true, label};
+    return {required:true, label:'General learning visual'};
+}
+
+function auditRepresentation(subject, text) {
+    const t = `${subject} ${text}`.toLowerCase();
+    if (/graph|coordinate|straight line|plot|statistics|frequency|data|histogram|bar graph|pie chart/.test(t)) return 'GRAPH/TABLE';
+    if (/diagram|figure|label|structure|circuit|ray|triangle|circle|map|flow|process|cycle/.test(t)) return 'DIAGRAM';
+    if (/formula|equation|calculate|find the value|solve|probability|mean|median|mode|resistance|voltage|current|power|energy|heat|density|speed|work|area|volume/.test(t)) return 'FORMULA';
+    return 'NOT_REQUIRED';
+}
+
+app.get('/api/admin/content-completeness-audit', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT q.id, q.chapter_id, q.question_text, q.marks, q.hint, q.easy_answer,
+                   q.keywords, q.question_type, q.difficulty, q.pyq_year, q.question_paper_id,
+                   c.chapter_number, c.chapter_name, s.name AS subject_name,
+                   qp.exam_year, qp.exam_month, qp.paper_type
+            FROM questions q
+            JOIN chapters c ON q.chapter_id=c.id
+            JOIN subjects s ON c.subject_id=s.id
+            LEFT JOIN question_papers qp ON q.question_paper_id=qp.id
+            WHERE q.is_active=TRUE AND c.is_active=TRUE AND s.is_active=TRUE
+            ORDER BY s.name, c.chapter_number::text, q.id
+        `);
+
+        const rows = result.rows.map(q => {
+            const text = String(q.question_text || '').trim();
+            const answer = String(q.easy_answer || '').trim();
+            const hint = String(q.hint || '').trim();
+            const keywords = String(q.keywords || '').trim();
+            const solution = answer ? (hint ? 'GENERATABLE' : 'BASIC_GENERATABLE') : 'MISSING';
+            const visual = auditVisualHint(q.subject_name, `${text} ${keywords} ${answer}`);
+            const rep = auditRepresentation(q.subject_name, `${text} ${keywords}`);
+            const repStatus = rep === 'NOT_REQUIRED' ? 'NOT_REQUIRED' : (rep === 'FORMULA' ? 'FORMULA_EXPECTED' : (rep === 'DIAGRAM' ? 'DIAGRAM_EXPECTED' : 'GRAPH_TABLE_EXPECTED'));
+            const issues = [];
+            if (!text) issues.push('QUESTION');
+            if (!answer) issues.push('ANSWER');
+            if (!hint) issues.push('HINT');
+            if (!keywords) issues.push('KEYWORDS');
+            if (!q.difficulty) issues.push('DIFFICULTY');
+            if (solution === 'MISSING') issues.push('SOLUTION');
+            // Visual is checked against the app's rule engine conceptually; the live UI has an internal fallback,
+            // so this is an "expected visual" audit, not a claim that a unique illustration exists for every question.
+            if (!visual.required) issues.push('VISUAL');
+            return {
+                id:q.id, subject_name:q.subject_name, chapter_number:q.chapter_number, chapter_name:q.chapter_name,
+                question_text:text, marks:q.marks, pyq_year:q.pyq_year, question_paper_id:q.question_paper_id,
+                answer_status: answer ? 'OK' : 'MISSING',
+                solution_status: solution,
+                visual_status: visual.required ? 'FALLBACK/ENGINE' : 'MISSING',
+                visual_type: visual.label,
+                representation_type: rep,
+                representation_status: repStatus,
+                hint_status: hint ? 'OK' : 'MISSING',
+                keywords_status: keywords ? 'OK' : 'MISSING',
+                difficulty_status: q.difficulty ? 'OK' : 'MISSING',
+                issue_count: issues.length,
+                issues,
+                audit_status: issues.length === 0 ? 'READY' : 'CHECK'
+            };
+        });
+
+        const summary = {
+            total_questions: rows.length,
+            ready_questions: rows.filter(r=>r.audit_status==='READY').length,
+            check_questions: rows.filter(r=>r.audit_status==='CHECK').length,
+            missing_answer: rows.filter(r=>r.answer_status==='MISSING').length,
+            solution_missing: rows.filter(r=>r.solution_status==='MISSING').length,
+            solution_generatable: rows.filter(r=>r.solution_status!=='MISSING').length,
+            missing_hint: rows.filter(r=>r.hint_status==='MISSING').length,
+            missing_keywords: rows.filter(r=>r.keywords_status==='MISSING').length,
+            missing_difficulty: rows.filter(r=>r.difficulty_status==='MISSING').length,
+            formula_expected: rows.filter(r=>r.representation_type==='FORMULA').length,
+            diagram_expected: rows.filter(r=>r.representation_type==='DIAGRAM').length,
+            graph_table_expected: rows.filter(r=>r.representation_type==='GRAPH/TABLE').length,
+            visual_engine_coverage: rows.filter(r=>r.visual_status==='FALLBACK/ENGINE').length
+        };
+        const subjects = {};
+        for (const r of rows) {
+            const k=r.subject_name;
+            if(!subjects[k]) subjects[k]={subject_name:k,total:0,ready:0,check:0,missing_answer:0,solution_missing:0,formula_expected:0,diagram_expected:0,graph_table_expected:0};
+            const a=subjects[k]; a.total++; if(r.audit_status==='READY')a.ready++;else a.check++; if(r.answer_status==='MISSING')a.missing_answer++; if(r.solution_status==='MISSING')a.solution_missing++; if(r.representation_type==='FORMULA')a.formula_expected++; if(r.representation_type==='DIAGRAM')a.diagram_expected++; if(r.representation_type==='GRAPH/TABLE')a.graph_table_expected++;
+        }
+        res.json({success:true,generated_at:new Date().toISOString(),summary,subjects:Object.values(subjects),rows});
+    } catch(error) {
+        console.error('Content Completeness Audit Error:', error);
+        res.status(500).json({success:false,error:'Unable to run live content completeness audit'});
+    }
+});
+
+// ================================================
 // STAGE 10 STEP 31 - REPAIR DUPLICATE / INVALID CHAPTERS
 // ================================================
 // Safe repair: consolidates duplicate chapter numbers within each subject,

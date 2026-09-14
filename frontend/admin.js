@@ -2263,3 +2263,45 @@ async function importStep48Math1_2024(){
   }catch(e){ if(msg) msg.textContent=`❌ ${e.message}`; }
 }
 document.getElementById('step48Import2024Math1Button')?.addEventListener('click',importStep48Math1_2024);
+
+
+// STEP 88B — LIVE QUESTION-BANK CONTENT COMPLETENESS AUDIT
+let latestContentAudit = null;
+function escAudit(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+async function runContentCompletenessAudit(){
+  const box=document.getElementById('contentCompletenessAuditResults');
+  const btn=document.getElementById('contentCompletenessAuditButton');
+  const exp=document.getElementById('contentCompletenessExportButton');
+  if(!box)return;
+  if(btn)btn.disabled=true;
+  box.innerHTML='<div style="padding:12px;background:#fff8dc">⏳ Checking every active live question. Please wait...</div>';
+  try{
+    const r=await fetch(`${API_URL}/api/admin/content-completeness-audit?ts=${Date.now()}`,{cache:'no-store'});
+    const d=await r.json();
+    if(!r.ok||!d.success)throw new Error(d.error||'Audit failed');
+    latestContentAudit=d;
+    const x=d.summary||{};
+    const pct=x.total_questions?Math.round((x.ready_questions/x.total_questions)*100):0;
+    let h=`<div style="padding:14px;border:2px solid #6a1b9a;background:#fbf5ff"><h3>✅ LIVE AUDIT COMPLETED</h3>`;
+    h+=`<p><strong>Total active questions:</strong> ${x.total_questions} &nbsp; <strong>READY:</strong> ${x.ready_questions} &nbsp; <strong>CHECK:</strong> ${x.check_questions} &nbsp; <strong>Readiness:</strong> ${pct}%</p>`;
+    h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">`;
+    const cards=[['📝 Missing Answer',x.missing_answer],['🧩 Solution Missing',x.solution_missing],['💡 Solution Generatable',x.solution_generatable],['💭 Missing Hint',x.missing_hint],['🔑 Missing Keywords',x.missing_keywords],['📊 Formula Expected',x.formula_expected],['📐 Diagram Expected',x.diagram_expected],['📈 Graph/Table Expected',x.graph_table_expected],['🖼️ Visual Engine Coverage',x.visual_engine_coverage]];
+    cards.forEach(c=>h+=`<div style="padding:10px;border:1px solid #ccc;background:white"><strong>${c[0]}</strong><br><span style="font-size:20px">${c[1]||0}</span></div>`);
+    h+='</div><h3>📚 Subject-wise Audit</h3><div style="overflow:auto"><table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;background:white;min-width:900px"><tr><th>Subject</th><th>Total</th><th>Ready</th><th>Check</th><th>Missing Answer</th><th>Solution Missing</th><th>Formula</th><th>Diagram</th><th>Graph/Table</th></tr>';
+    (d.subjects||[]).forEach(a=>h+=`<tr><td>${escAudit(a.subject_name)}</td><td>${a.total}</td><td>${a.ready}</td><td>${a.check}</td><td>${a.missing_answer}</td><td>${a.solution_missing}</td><td>${a.formula_expected}</td><td>${a.diagram_expected}</td><td>${a.graph_table_expected}</td></tr>`);
+    h+='</table></div><h3>⚠️ Questions needing attention</h3><div style="max-height:500px;overflow:auto"><table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;background:white;min-width:1100px"><tr><th>ID</th><th>Subject</th><th>Chapter</th><th>Question</th><th>Answer</th><th>Solution</th><th>Visual</th><th>Formula/Diagram/Graph/Table</th><th>Issues</th></tr>';
+    (d.rows||[]).filter(q=>q.audit_status==='CHECK').forEach(q=>h+=`<tr><td>${q.id}</td><td>${escAudit(q.subject_name)}</td><td>${escAudit(q.chapter_number)} — ${escAudit(q.chapter_name)}</td><td>${escAudit(q.question_text)}</td><td>${q.answer_status}</td><td>${q.solution_status}</td><td>${q.visual_status}</td><td>${q.representation_status}</td><td>${escAudit((q.issues||[]).join(', '))}</td></tr>`);
+    h+='</table></div><p><small>Note: Solution status means the existing answer/hint can generate a guided solution in the app; it does not claim an officially authored source solution. Visual status checks coverage by the app visual engine/fallback. Formula/Diagram/Graph/Table is an automatic applicability check, not a claim that an official figure exists.</small></p></div>';
+    box.innerHTML=h; if(exp)exp.style.display='inline-block';
+  }catch(e){box.innerHTML=`<div style="padding:12px;border:2px solid #b71c1c;background:#fff5f5"><strong>❌ ${escAudit(e.message)}</strong></div>`;}
+  finally{if(btn)btn.disabled=false;}
+}
+function exportContentAuditCSV(){
+  if(!latestContentAudit?.rows?.length)return;
+  const head=['ID','Subject','Chapter Number','Chapter Name','Question','Marks','PYQ Year','Answer','Solution','Visual','Visual Type','Representation','Representation Status','Hint','Keywords','Difficulty','Issues','Audit Status'];
+  const lines=[head,...latestContentAudit.rows.map(q=>[q.id,q.subject_name,q.chapter_number,q.chapter_name,q.question_text,q.marks,q.pyq_year||'',q.answer_status,q.solution_status,q.visual_status,q.visual_type,q.representation_type,q.representation_status,q.hint_status,q.keywords_status,q.difficulty_status,(q.issues||[]).join('; '),q.audit_status])].map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(','));
+  const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='10th-PASS-MASTER_CONTENT_COMPLETENESS_AUDIT.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+document.getElementById('contentCompletenessAuditButton')?.addEventListener('click',runContentCompletenessAudit);
+document.getElementById('contentCompletenessExportButton')?.addEventListener('click',exportContentAuditCSV);
