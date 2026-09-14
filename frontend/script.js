@@ -17,6 +17,78 @@ const API_URL = (() => {
 
 
 // ================================================
+// STEP 86 — STUDENT-FRIENDLY MAIN MENU / SUBMENUS
+// ================================================
+function setupMainNavigation() {
+    const navToggle = document.getElementById("navToggleButton");
+    const navLinks = document.getElementById("navLinks");
+
+    navToggle?.addEventListener("click", () => {
+        const open = navLinks?.classList.toggle("nav-open");
+        navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    document.querySelectorAll(".nav-trigger").forEach(trigger => {
+        trigger.addEventListener("click", (event) => {
+            const item = event.currentTarget.closest(".nav-item");
+            document.querySelectorAll(".nav-item.menu-open").forEach(other => {
+                if (other !== item) other.classList.remove("menu-open");
+            });
+            item?.classList.toggle("menu-open");
+        });
+    });
+
+    document.querySelectorAll("[data-nav-target]").forEach(button => {
+        button.addEventListener("click", () => {
+            const target = document.getElementById(button.dataset.navTarget);
+            if (target) target.click();
+            closeMainNavigation();
+        });
+    });
+
+    document.getElementById("navHomeButton")?.addEventListener("click", () => {
+        closeMainNavigation();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!event.target.closest(".main-nav")) {
+            document.querySelectorAll(".nav-item.menu-open").forEach(x => x.classList.remove("menu-open"));
+        }
+    });
+}
+
+function closeMainNavigation() {
+    document.querySelectorAll(".nav-item.menu-open").forEach(x => x.classList.remove("menu-open"));
+    const navLinks = document.getElementById("navLinks");
+    const navToggle = document.getElementById("navToggleButton");
+    navLinks?.classList.remove("nav-open");
+    navToggle?.setAttribute("aria-expanded", "false");
+}
+
+function updateSubjectMenu(subjects) {
+    const panel = document.getElementById("subjectMenuPanel");
+    if (!panel) return;
+    if (!Array.isArray(subjects) || !subjects.length) {
+        panel.innerHTML = '<p class="submenu-empty">Subjects उपलब्ध नाहीत.</p>';
+        return;
+    }
+    const icons = ["📐","🔬","🌍","📜","🗺️","🧮","⚡","🧪","📝","📖","🔢","🎓"];
+    panel.innerHTML = subjects.map((subject, index) =>
+        `<button class="subject-menu-button" type="button" data-subject-id="${Number(subject.id)}">${icons[index % icons.length]} ${dailyPracticeEscape(subject.name)}</button>`
+    ).join("");
+    panel.querySelectorAll(".subject-menu-button").forEach(button => {
+        const subject = subjects.find(x => Number(x.id) === Number(button.dataset.subjectId));
+        button.addEventListener("click", () => {
+            if (subject) loadChapters(subject);
+            closeMainNavigation();
+        });
+    });
+}
+
+setupMainNavigation();
+
+// ================================================
 // LOAD SUBJECTS
 // ================================================
 
@@ -40,6 +112,7 @@ async function loadSubjects() {
 
         const subjects = await response.json();
 
+        updateSubjectMenu(subjects);
         container.innerHTML = "";
 
         subjects.forEach((subject) => {

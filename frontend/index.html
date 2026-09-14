@@ -57,6 +57,47 @@
         </div>
     </header>
 
+    <nav class="main-nav" aria-label="Main menu">
+        <button class="nav-home" id="navHomeButton">🏠 Home</button>
+        <button class="nav-toggle" id="navToggleButton" aria-expanded="false">☰ Menu</button>
+        <div class="nav-links" id="navLinks">
+            <div class="nav-item has-menu">
+                <button class="nav-trigger" type="button">📚 Study <span>⌄</span></button>
+                <div class="submenu">
+                    <button data-nav-target="dailyQuestionsButton">🎯 Today's 10 Questions</button>
+                    <button data-nav-target="smartRevisionButton">🧠 Smart Revision</button>
+                    <button data-nav-target="passChallengeButton">📅 30-Day PASS Challenge</button>
+                    <button data-nav-target="myRevisionButton">📖 My Revision</button>
+                </div>
+            </div>
+            <div class="nav-item has-menu">
+                <button class="nav-trigger" type="button">✍️ Practice <span>⌄</span></button>
+                <div class="submenu">
+                    <button data-nav-target="pyqLibraryButton">📚 PYQ Library</button>
+                    <button data-nav-target="pyqPriorityButton">🎯 PYQ First – PASS Priority</button>
+                    <button data-nav-target="pyqMasterButton">🏆 PYQ Master</button>
+                    <button data-nav-target="mockTestButton">📝 Mock Test</button>
+                </div>
+            </div>
+            <div class="nav-item has-menu">
+                <button class="nav-trigger" type="button">📊 Progress <span>⌄</span></button>
+                <div class="submenu">
+                    <button data-nav-target="studentDashboardButton">📊 My Dashboard</button>
+                    <button data-nav-target="passReadinessButton">🏆 PASS Readiness</button>
+                    <button data-nav-target="dailyStreakButton">🔥 Daily Streak</button>
+                    <button data-nav-target="achievementsButton">🏅 Achievements</button>
+                    <button data-nav-target="examAnalysisButton">📈 Exam Analysis</button>
+                </div>
+            </div>
+            <div class="nav-item has-menu subjects-nav-item">
+                <button class="nav-trigger" type="button">📖 Subjects <span>⌄</span></button>
+                <div class="submenu subject-submenu" id="subjectMenuPanel">
+                    <p class="submenu-empty">Login करा, मग Subjects इथे दिसतील.</p>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <section class="welcome hero-welcome">
         <h2 id="welcomeMessage"></h2>
         <p>आजचा छोटा अभ्यास करा — उद्याचा confidence वाढवा. 💪</p>
@@ -112,6 +153,14 @@
         </button>
 
         <p id="studentMessage"></p>
+    </section>
+
+    <section class="quick-tools">
+        <div>
+            <span class="eyebrow">QUICK ACCESS</span>
+            <h2>⚡ आज काय करायचे?</h2>
+            <p>Menu मधून कोणतेही section उघडा किंवा खालील quick buttons वापरा.</p>
+        </div>
     </section>
 
     <div class="student-actions">
