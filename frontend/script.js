@@ -1036,6 +1036,7 @@ function startSmartQuestionLearning(question, subject, chapter, questionBox) {
         <div class="smart-stage" data-stage="2" style="display:none;">
             <h4>🎓 Step 2 of 5 — Easy Answer</h4>
             <div class="question-box"><p>${safeText(answer)}</p></div>
+            ${typeof window.getRapidSolutionGuide === "function" ? `<details style="margin-top:10px;"><summary><strong>📝 Full Answer Writing / Solution Guide</strong></summary><div class="solution-guide">${window.getRapidSolutionGuide(question, subject).map((x,i)=>`<div class="solution-step"><strong>Step ${i+1}:</strong> ${safeText(x)}</div>`).join("")}</div></details>` : ""}
             <button class="smart-next">Next → Keywords</button>
         </div>
         <div class="smart-stage" data-stage="3" style="display:none;">
