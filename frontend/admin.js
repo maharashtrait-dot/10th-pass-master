@@ -1,4 +1,10 @@
-const API_URL = "http://localhost:3001";
+const API_URL = (() => {
+    // Local file / localhost -> local backend. Published app -> same Node origin.
+    if (window.location.protocol === "file:") return "http://localhost:3001";
+    const host = window.location.hostname;
+    if (host === "localhost" || host === "127.0.0.1") return "http://localhost:3001";
+    return window.location.origin;
+})();
 
 
 // ================================================
@@ -2277,6 +2283,11 @@ async function runContentCompletenessAudit(){
   box.innerHTML='<div style="padding:12px;background:#fff8dc">⏳ Checking every active live question. Please wait...</div>';
   try{
     const r=await fetch(`${API_URL}/api/admin/content-completeness-audit?ts=${Date.now()}`,{cache:'no-store'});
+    const contentType=(r.headers.get('content-type')||'').toLowerCase();
+    if(!contentType.includes('application/json')){
+      const raw=await r.text();
+      throw new Error(`Audit API returned non-JSON response (${r.status}). Check the live server/API URL. ${raw.slice(0,80)}`);
+    }
     const d=await r.json();
     if(!r.ok||!d.success)throw new Error(d.error||'Audit failed');
     latestContentAudit=d;
