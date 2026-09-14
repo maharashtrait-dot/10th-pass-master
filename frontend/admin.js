@@ -2271,7 +2271,7 @@ async function importStep48Math1_2024(){
 document.getElementById('step48Import2024Math1Button')?.addEventListener('click',importStep48Math1_2024);
 
 
-// STEP 88B — LIVE QUESTION-BANK CONTENT COMPLETENESS AUDIT
+// STEP 91 — LIVE QUESTION-BANK CONTENT COMPLETENESS AUDIT
 let latestContentAudit = null;
 function escAudit(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 async function runContentCompletenessAudit(){
@@ -2282,7 +2282,7 @@ async function runContentCompletenessAudit(){
   if(btn)btn.disabled=true;
   box.innerHTML='<div style="padding:12px;background:#fff8dc">⏳ Checking every active live question. Please wait...</div>';
   try{
-    const r=await fetch(`${API_URL}/api/admin/content-completeness-audit?ts=${Date.now()}`,{cache:'no-store'});
+    const r=await fetch(`${API_URL}/api/admin/live-content-audit-v2?ts=${Date.now()}`,{cache:'no-store'});
     const contentType=(r.headers.get('content-type')||'').toLowerCase();
     if(!contentType.includes('application/json')){
       const raw=await r.text();

@@ -5093,7 +5093,9 @@ function auditRepresentation(subject, text) {
     return 'NOT_REQUIRED';
 }
 
-app.get('/api/admin/content-completeness-audit', async (req, res) => {
+app.get('/api/admin/live-content-audit-v2', async (req, res) => {
+    // STEP 91: Dedicated live audit endpoint. Read-only; never mutates question data.
+
     try {
         const result = await pool.query(`
             SELECT q.id, q.chapter_id, q.question_text, q.marks, q.hint, q.easy_answer,
