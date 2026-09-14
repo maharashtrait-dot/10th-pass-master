@@ -43,12 +43,21 @@ function setupMainNavigation() {
             const target = document.getElementById(button.dataset.navTarget);
             if (target) target.click();
             closeMainNavigation();
+            // Every menu item opens its page in the single content area directly under the menu.
+            setTimeout(() => document.getElementById("subjectsContainer")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
         });
     });
 
     document.getElementById("navHomeButton")?.addEventListener("click", () => {
         closeMainNavigation();
+        const page = document.getElementById("subjectsContainer");
+        if (page) page.innerHTML = "";
         window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    document.getElementById("navLogoutButton")?.addEventListener("click", () => {
+        document.getElementById("logoutButton")?.click();
+        closeMainNavigation();
     });
 
     document.addEventListener("click", (event) => {
@@ -82,6 +91,7 @@ function updateSubjectMenu(subjects) {
         button.addEventListener("click", () => {
             if (subject) loadChapters(subject);
             closeMainNavigation();
+            setTimeout(() => document.getElementById("subjectsContainer")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
         });
     });
 }
@@ -113,27 +123,9 @@ async function loadSubjects() {
         const subjects = await response.json();
 
         updateSubjectMenu(subjects);
+        // Subjects are intentionally shown only inside the main menu.
+        // The page area stays empty until a menu/submenu item is selected.
         container.innerHTML = "";
-
-        subjects.forEach((subject) => {
-
-            const card =
-                document.createElement("button");
-
-            card.className = "subject-card";
-
-            card.innerHTML = `
-                <span>${subject.name}</span>
-            `;
-
-            card.addEventListener(
-                "click",
-                () => loadChapters(subject)
-            );
-
-            container.appendChild(card);
-
-        });
 
     } catch (error) {
 
@@ -345,6 +337,7 @@ async function createStudent() {
             .getElementById("logoutButton")
             .style.display =
             "inline-block";
+        document.getElementById("navLogoutButton")?.style && (document.getElementById("navLogoutButton").style.display = "inline-block");
 
 
         // Load Subjects
@@ -2744,6 +2737,8 @@ function checkSavedStudent() {
 // ================================================
 
 function logoutStudent() {
+    document.getElementById("navLogoutButton")?.style && (document.getElementById("navLogoutButton").style.display = "none");
+
 
     localStorage.removeItem(
         "studentId"

@@ -95,8 +95,12 @@
                     <p class="submenu-empty">Login करा, मग Subjects इथे दिसतील.</p>
                 </div>
             </div>
+            <button class="nav-logout" id="navLogoutButton" type="button" style="display:none;">🚪 Logout</button>
         </div>
     </nav>
+
+    <!-- All menu pages render here. Home content stays below this area. -->
+    <section id="subjectsContainer" class="app-page-container" aria-live="polite"></section>
 
     <section class="welcome hero-welcome">
         <h2 id="welcomeMessage"></h2>
@@ -223,12 +227,6 @@
             🚪 Logout
         </button>
     </div>
-
-    <section id="subjectsContainer">
-        <p>
-            Please enter your name and mobile number to start studying.
-        </p>
-    </section>
 
     <section class="progress">
         <h2>📊 Your Progress</h2>
