@@ -37,6 +37,8 @@
       }
     }
     </script>
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="mobile-web-app-capable" content="yes">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="visual-learning.css">
 </head>
@@ -44,21 +46,47 @@
 <body>
 <div class="container">
 
-    <header>
-        <h1>🎓 10th PASS MASTER</h1>
-        <p>Maharashtra SSC Pass-Oriented Study App</p>
+    <header class="hero-header">
+        <div class="hero-badge">🎓 Maharashtra SSC • Class 10</div>
+        <h1>10th PASS MASTER</h1>
+        <p class="hero-subtitle">Learn Easy • Practice Smart • Prepare with Confidence</p>
+        <div class="hero-pills">
+            <span>🆓 Free for Students</span>
+            <span>📚 Chapter-wise</span>
+            <span>🎯 PASS Focused</span>
+        </div>
     </header>
 
-    <section class="welcome">
+    <section class="welcome hero-welcome">
         <h2 id="welcomeMessage"></h2>
-        <p>Learn easy. Practice daily. PASS with confidence. 💪</p>
+        <p>आजचा छोटा अभ्यास करा — उद्याचा confidence वाढवा. 💪</p>
     </section>
 
-    <section class="public-intro" aria-label="About 10th PASS MASTER">
-        <h2>📚 Free Maharashtra SSC Class 10 Study App</h2>
-        <p><strong>10th PASS MASTER</strong> helps Maharashtra Board Class 10 students learn in an easy, PASS-focused way.</p>
-        <p>Practice <strong>verified PYQs</strong>, chapter questions and mock tests. Use <strong>Smart Learn, Smart Revision, Visual Learning, PASS Target</strong> and the <strong>30-Day PASS Challenge</strong> to study step by step.</p>
-        <p>🎯 <strong>Goal:</strong> Make useful exam preparation available free to students.</p>
+    <section class="public-intro landing-panel" aria-label="About 10th PASS MASTER">
+        <div class="landing-copy">
+            <span class="eyebrow">YOUR SMART SSC STUDY PARTNER</span>
+            <h2>📚 10वीचा अभ्यास आता सोपा, छोटा आणि interactive</h2>
+            <p><strong>10th PASS MASTER</strong> Maharashtra SSC Class 10 विद्यार्थ्यांना step-by-step अभ्यास करण्यासाठी तयार केले आहे.</p>
+            <div class="feature-grid">
+                <div class="feature-card"><span class="feature-icon">🎯</span><strong>Daily 10</strong><small>दररोज छोटी practice</small></div>
+                <div class="feature-card"><span class="feature-icon">🎓</span><strong>Smart Learn</strong><small>Easy Answer + Keywords + Visual</small></div>
+                <div class="feature-card"><span class="feature-icon">🏆</span><strong>Verified PYQ</strong><small>Exam-oriented practice</small></div>
+                <div class="feature-card"><span class="feature-icon">🧠</span><strong>Smart Revision</strong><small>जे विसरता ते पुन्हा शिका</small></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="study-flow" aria-label="How to study">
+        <div class="section-heading"><span class="eyebrow">SIMPLE 4-STEP METHOD</span><h2>✨ असा करा रोजचा अभ्यास</h2></div>
+        <div class="flow-grid">
+            <div class="flow-step"><b>1</b><span>🎓</span><strong>Learn Easy</strong><small>प्रश्न समजून घ्या</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step"><b>2</b><span>✍️</span><strong>Practice</strong><small>उत्तर स्वतः सोडवा</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step"><b>3</b><span>🔄</span><strong>Revise</strong><small>Weak questions पुन्हा करा</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step"><b>4</b><span>🏆</span><strong>Mock Test</strong><small>तयारी तपासा</small></div>
+        </div>
     </section>
 
     <section id="studentSection">
@@ -161,6 +189,6 @@
 </div>
 
 <script src="visual-learning.js?v=5"></script>
-<script src="script.js?v=83publicseo20260913"></script>
+<script src="script.js?v=85ui20260914"></script>
 </body>
 </html>
