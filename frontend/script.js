@@ -433,11 +433,14 @@ async function loadChapters(subject) {
         else {
 
             chapters.forEach((chapter) => {
-                const wrap = document.createElement("div");
-                wrap.className = "chapter-card-wrap";
 
-                const chapterCard = document.createElement("button");
-                chapterCard.className = "subject-card";
+                const chapterCard =
+                    document.createElement("button");
+
+
+                chapterCard.className =
+                    "subject-card";
+
 
                 const totalQuestions = Number(chapter.active_questions || chapter.total_questions || 0);
                 const knownQuestions = Number(chapter.known_questions || 0);
@@ -447,21 +450,32 @@ async function loadChapters(subject) {
 
                 chapterCard.innerHTML = `
                     <span>
-                        <strong>Chapter ${chapter.chapter_number}: ${chapter.chapter_name}</strong><br>
-                        <small>📚 ${totalQuestions} Questions &nbsp; | &nbsp; ✅ ${knownQuestions} Known &nbsp; | &nbsp; 🔄 ${revisionQuestions} Revision</small><br>
+                        <strong>Chapter ${chapter.chapter_number}: ${chapter.chapter_name}</strong>
+                        <br>
+                        <small>📚 ${totalQuestions} Questions &nbsp; | &nbsp; ✅ ${knownQuestions} Known &nbsp; | &nbsp; 🔄 ${revisionQuestions} Revision</small>
+                        <br>
                         <small>📊 Chapter Progress: ${completion}%</small>
-                    </span>`;
-                chapterCard.addEventListener("click", () => loadQuestions(chapter, subject));
+                    </span>
+                `;
 
-                const passBtn=document.createElement("button");
-                passBtn.type="button";
-                passBtn.className="chapter-pass-booster";
-                passBtn.textContent="🎯 PASS Pack – 10 Must-Do Questions";
-                passBtn.addEventListener("click",(ev)=>{ev.preventDefault();ev.stopPropagation();loadChapterPassBooster(chapter,subject);});
 
-                wrap.appendChild(chapterCard);
-                wrap.appendChild(passBtn);
-                container.appendChild(wrap);
+                chapterCard.addEventListener(
+                    "click",
+                    () => {
+
+                        loadQuestions(
+                            chapter,
+                            subject
+                        );
+
+                    }
+                );
+
+
+                container.appendChild(
+                    chapterCard
+                );
+
             });
 
         }
@@ -489,33 +503,6 @@ async function loadChapters(subject) {
 
 }
 
-
-
-// ================================================
-// STEP 94 - CHAPTER PASS BOOSTER UI
-// ================================================
-async function loadChapterPassBooster(chapter,subject){
-  const container=document.getElementById('subjectsContainer'); if(!container)return;
-  container.innerHTML=`<button id="backPassBooster">← Back to Chapters</button><h2>🎯 PASS Pack – ${dailyPracticeEscape(subject.name)}</h2><p>⏳ Selecting the strongest existing questions from this chapter...</p>`;
-  try{
-    const r=await fetch(`${API_URL}/api/students/${currentStudentId||0}/pass-booster/${Number(chapter.id)}`);
-    const d=await r.json(); if(!r.ok||!d.success)throw new Error(d.error||'PASS Pack API error');
-    const qs=d.questions||[];
-    let html=`<button id="backPassBooster">← Back to ${dailyPracticeEscape(subject.name)} Chapters</button><h2>🎯 PASS Pack – Chapter ${dailyPracticeEscape(chapter.chapter_number)}: ${dailyPracticeEscape(chapter.chapter_name)}</h2><div class="question-box"><strong>PASS strategy:</strong> First solve yourself → check Hint → Easy Answer → Solution → mark Known/Revision. Verified PYQs are shown with 🏆.</div>`;
-    if(!qs.length){html+=`<div class="question-box">❌ या chapter मध्ये active questions उपलब्ध नाहीत.</div>`;container.innerHTML=html;document.getElementById('backPassBooster').onclick=()=>loadChapters(subject);return;}
-    html+=qs.map((q,i)=>{
-      const answer=q.easy_answer||q.answer||q.correct_answer||'';
-      const sol=typeof buildLocalSolution==='function'?buildLocalSolution(q):(q.solution||'');
-      const visual=(typeof window.renderVisualLearning==='function')?window.renderVisualLearning(q):'';
-      return `<div class="question-box pass-booster-question"><h3>${i+1}. ${q.verified_pyq?'🏆 ':''}${dailyPracticeEscape(q.question_text)}</h3><p>📖 Chapter ${dailyPracticeEscape(q.chapter_number)}: ${dailyPracticeEscape(q.chapter_name)} &nbsp; | &nbsp; ⭐ ${dailyPracticeEscape(q.marks||1)} marks</p>${q.hint?`<button class="pb-hint">💡 Hint</button><div class="pb-hidden">${dailyPracticeEscape(q.hint)}</div>`:''}<button class="pb-answer">📝 Easy Answer</button><div class="pb-hidden">${dailyPracticeEscape(answer||'Answer उपलब्ध नाही.')}</div><button class="pb-solution">🧩 Solution</button><div class="pb-hidden"><pre style="white-space:pre-wrap;font-family:inherit">${dailyPracticeEscape(sol)}</pre>${visual}</div><div style="margin-top:8px"><button class="pb-known" data-id="${Number(q.id)}">✅ I Know</button><button class="pb-revise" data-id="${Number(q.id)}">🔄 Revise</button></div></div>`;
-    }).join('');
-    container.innerHTML=html;
-    document.getElementById('backPassBooster').onclick=()=>loadChapters(subject);
-    container.querySelectorAll('.pb-hint,.pb-answer,.pb-solution').forEach(b=>b.addEventListener('click',()=>{const n=b.nextElementSibling;if(n)n.style.display=n.style.display==='block'?'none':'block';}));
-    container.querySelectorAll('.pb-known').forEach(b=>b.addEventListener('click',()=>saveProgress(Number(b.dataset.id),'known')));
-    container.querySelectorAll('.pb-revise').forEach(b=>b.addEventListener('click',()=>saveProgress(Number(b.dataset.id),'revision')));
-  }catch(e){container.innerHTML=`<button id="backPassBooster">← Back to Chapters</button><h2>🎯 PASS Pack</h2><p>❌ ${dailyPracticeEscape(e.message)}</p>`;document.getElementById('backPassBooster').onclick=()=>loadChapters(subject);}
-}
 
 // ================================================
 // SAVE QUESTION PROGRESS
@@ -609,6 +596,109 @@ async function saveProgress(
 
 
 // ================================================
+// STEP 95 — EXAM-ORIENTED CHAPTER PASS BOOSTER
+// Dynamic from live chapter questions. Targets are study recommendations,
+// not claims about the official board paper pattern.
+// ================================================
+function examPackSafe(v){
+    return dailyPracticeEscape(v==null?'':v);
+}
+function examPackIsPYQ(q){
+    return q && (q.pyq_verified===true || q.source_type==='ACTUAL_PYQ' || q.source_type==='PYQ_REPEATED' || q.question_type==='PYQ' || q.pyq_year);
+}
+function examPackIsRepeated(q){ return q && (q.source_type==='PYQ_REPEATED' || Number(q.pyq_frequency||0)>1); }
+function examPackRepType(q,subject){
+    const t=String((q.question_text||'')+' '+(q.keywords||'')).toLowerCase();
+    const sub=String(subject?.name||'').toLowerCase();
+    if(/graph|plot|coordinate|line\s*graph|bar graph|histogram|pie chart/.test(t)) return 'GRAPH';
+    if(/table|tabulate|frequency distribution|data|class interval/.test(t)) return 'TABLE';
+    if(/diagram|draw|figure|label|circuit|ray diagram|structure|map|outline map|flowchart/.test(t)) return 'DIAGRAM';
+    if(/formula|calculate|find|solve|equation|area|volume|mean|median|mode|probability|resistance|power|energy|heat|density|speed|acceleration|force/.test(t) || /mathematics|science/.test(sub)) return 'FORMULA';
+    return 'NONE';
+}
+function renderChapterExamPack(chapter,subject,questions){
+    const total=questions.length;
+    const marks={1:0,2:0,3:0,4:0};
+    questions.forEach(q=>{const m=Number(q.marks); if(m===1||m===2||m===3||m>=4) marks[m>=4?4:m]++;});
+    const pyqs=questions.filter(examPackIsPYQ), repeated=questions.filter(examPackIsRepeated);
+    const verified=questions.filter(q=>q.pyq_verified===true && (q.source_type==='ACTUAL_PYQ'||q.source_type==='PYQ_REPEATED'));
+    const formula=questions.filter(q=>examPackRepType(q,subject)==='FORMULA').length;
+    const diagram=questions.filter(q=>examPackRepType(q,subject)==='DIAGRAM').length;
+    const graph=questions.filter(q=>examPackRepType(q,subject)==='GRAPH').length;
+    const table=questions.filter(q=>examPackRepType(q,subject)==='TABLE').length;
+    const answer=questions.filter(q=>String(q.easy_answer||'').trim()).length;
+    const solution=questions.filter(q=>String(q.solution||q.mcq_explanation||'').trim() || String(q.easy_answer||'').trim()).length;
+    const target={one:Math.min(4,total),two:Math.min(3,total),three:Math.min(2,total),four:Math.min(1,total)};
+    const checklistKey=`examPackChecklist_${subject.id}_${chapter.id}`;
+    let checks={}; try{checks=JSON.parse(localStorage.getItem(checklistKey)||'{}')}catch(e){}
+    const item=(id,label)=>`<label style="display:block;margin:7px 0"><input type="checkbox" class="exam-check" data-key="${id}" ${checks[id]?'checked':''}> ${label}</label>`;
+    const status=(n,targetN)=>n>=targetN?'🟢':'🟡';
+    return `<div class="question-box exam-pass-pack" id="chapterExamPassPack">
+      <h3>🎯 EXAM-ORIENTED PASS BOOSTER</h3>
+      <p><strong>${examPackSafe(subject.name)} — Chapter ${examPackSafe(chapter.chapter_number)}: ${examPackSafe(chapter.chapter_name)}</strong></p>
+      <p class="exam-note">ℹ️ 1/2/3/4-mark balance below is a <strong>PASS-study target</strong> based on the live question bank, not an official board-paper blueprint.</p>
+      <div class="exam-grid">
+        <div><strong>1 Mark</strong><br>${status(marks[1],target.one)} ${marks[1]} / ${target.one}</div>
+        <div><strong>2 Marks</strong><br>${status(marks[2],target.two)} ${marks[2]} / ${target.two}</div>
+        <div><strong>3 Marks</strong><br>${status(marks[3],target.three)} ${marks[3]} / ${target.three}</div>
+        <div><strong>4+ Marks</strong><br>${status(marks[4],target.four)} ${marks[4]} / ${target.four}</div>
+      </div>
+      <div class="exam-grid">
+        <div><strong>🏆 Verified PYQ</strong><br>${verified.length}</div>
+        <div><strong>🔥 Repeated PYQ</strong><br>${repeated.length}</div>
+        <div><strong>📝 Answer Ready</strong><br>${answer}/${total}</div>
+        <div><strong>🧩 Solution Ready</strong><br>${solution}/${total}</div>
+      </div>
+      <p><strong>📐 Representation scan:</strong> Formula ${formula} &nbsp;|&nbsp; Diagram ${diagram} &nbsp;|&nbsp; Graph ${graph} &nbsp;|&nbsp; Table ${table}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">
+        <button type="button" class="exam-filter-btn" data-filter="pyq">🏆 PYQ First</button>
+        <button type="button" class="exam-filter-btn" data-filter="1">1 Mark</button>
+        <button type="button" class="exam-filter-btn" data-filter="2">2 Marks</button>
+        <button type="button" class="exam-filter-btn" data-filter="3">3 Marks</button>
+        <button type="button" class="exam-filter-btn" data-filter="4">4+ Marks</button>
+        <button type="button" class="exam-filter-btn" data-filter="all">📚 All Questions</button>
+      </div>
+      <details open><summary><strong>📌 PYQ Priority + Exam Strategy</strong></summary>
+        <ol>
+          <li>First solve <strong>Verified PYQ</strong> and <strong>Repeated PYQ</strong>.</li>
+          <li>Then complete the 1-mark and 2-mark questions for quick PASS coverage.</li>
+          <li>Then practise 3-mark and 4+/long-answer questions with full working/answer structure.</li>
+          <li>For formula/diagram/graph/table questions, practise the required representation—not only the final answer.</li>
+        </ol>
+      </details>
+      <details open><summary><strong>✅ Final Chapter Revision Checklist</strong></summary>
+        ${item('pyq','🏆 PYQ First set completed')}
+        ${item('one','1-mark questions revised')}
+        ${item('two','2-mark questions revised')}
+        ${item('three','3-mark questions revised')}
+        ${item('four','4+/long-answer questions revised')}
+        ${item('repr','Formula / Diagram / Graph / Table practice completed')}
+        ${item('answers','Easy answers + keywords memorised')}
+        ${item('self','One final self-test completed without help')}
+      </details>
+      <p><strong>🎯 PASS Rule:</strong> finish the checklist, then use <strong>Smart Revision</strong> for every question marked “Need Revision”.</p>
+    </div>`;
+}
+function wireChapterExamPack(){
+    const pack=document.getElementById('chapterExamPassPack'); if(!pack) return;
+    pack.querySelectorAll('.exam-check').forEach(cb=>cb.addEventListener('change',()=>{
+        const all=[...pack.querySelectorAll('.exam-check')];
+        const key=pack.dataset.checklistKey;
+        let state={}; try{state=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+        state[cb.dataset.key]=cb.checked; localStorage.setItem(key,JSON.stringify(state));
+    }));
+    pack.querySelectorAll('.exam-filter-btn').forEach(btn=>btn.addEventListener('click',()=>{
+        const f=btn.dataset.filter;
+        document.querySelectorAll('#chapterQuestionsList .question-box').forEach(box=>{
+            const source=box.dataset.source||'', marks=Number(box.dataset.marks||0);
+            const pyq=source==='ACTUAL_PYQ'||source==='PYQ_REPEATED';
+            const ok=f==='all'||(f==='pyq'&&pyq)||(f==='4'&&marks>=4)||(f!=='pyq'&&f!=='all'&&Number(f)===marks);
+            box.style.display=ok?'block':'none';
+        });
+    }));
+}
+
+// ================================================
 // LOAD QUESTIONS BY CHAPTER
 // ================================================
 
@@ -689,10 +779,13 @@ async function loadQuestions(
                 <option value="IMPORTANT">🟠 Important</option>
                 <option value="PRACTICE">🟣 Practice</option>
             </select>
+            ${renderChapterExamPack(chapter, subject, questions)}
             <div id="chapterQuestionsList"></div>
 
         `;
-
+        const examPack=document.getElementById('chapterExamPassPack');
+        if(examPack) examPack.dataset.checklistKey=`examPackChecklist_${subject.id}_${chapter.id}`;
+        wireChapterExamPack();
 
         if (questions.length === 0) {
 
@@ -939,6 +1032,7 @@ async function loadQuestions(
 
 
                     questionBox.dataset.difficulty = question.difficulty || "";
+                    questionBox.dataset.marks = Number(question.marks || 0);
                     questionBox.dataset.source = question.source_type || (question.question_type === 'PYQ' || question.pyq_year ? 'ACTUAL_PYQ' : (question.question_type === 'Important' ? 'IMPORTANT' : 'PRACTICE'));
                     document.getElementById("chapterQuestionsList").appendChild(questionBox);
 
