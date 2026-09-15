@@ -5244,6 +5244,37 @@ app.get('/api/admin/pyq-coverage-matrix-v1', async (req,res)=>{
   }catch(e){console.error('PYQ coverage matrix error:',e);res.status(500).json({success:false,error:'Unable to load PYQ coverage matrix'});}
 });
 
+
+// ================================================
+// STEP 94 - CHAPTER PASS BOOSTER
+// Read-only: selects existing live questions for a chapter.
+// Priority: verified PYQ -> answer-ready -> easy/medium -> remaining.
+// No database mutation and no PYQ reclassification.
+// ================================================
+app.get('/api/students/:studentId/pass-booster/:chapterId', async (req,res)=>{
+  try{
+    const chapterId=Number(req.params.chapterId);
+    if(!Number.isFinite(chapterId)) return res.status(400).json({success:false,error:'Invalid chapter id'});
+    const r=await pool.query(`
+      SELECT q.*, s.name AS subject_name, c.chapter_number, c.chapter_name,
+             COALESCE(p.status,'unstarted') AS student_status
+      FROM questions q
+      JOIN chapters c ON c.id=q.chapter_id
+      JOIN subjects s ON s.id=c.subject_id
+      LEFT JOIN student_question_progress p ON p.question_id=q.id AND p.student_id=$2
+      WHERE q.chapter_id=$1 AND q.is_active=TRUE
+      ORDER BY
+        CASE WHEN q.pyq_verified=TRUE AND q.source_type IN ('ACTUAL_PYQ','PYQ_REPEATED') THEN 0 ELSE 1 END,
+        CASE WHEN COALESCE(TRIM(q.easy_answer),'')<>'' THEN 0 ELSE 1 END,
+        CASE WHEN LOWER(COALESCE(q.difficulty,''))='easy' THEN 0 WHEN LOWER(COALESCE(q.difficulty,''))='medium' THEN 1 ELSE 2 END,
+        CASE WHEN COALESCE(p.status,'unstarted')='known' THEN 2 WHEN COALESCE(p.status,'unstarted')='revision' THEN 1 ELSE 0 END,
+        q.id
+      LIMIT 12`,[chapterId,req.params.studentId||null]);
+    const rows=r.rows.map(q=>({...q,verified_pyq:Boolean(q.pyq_verified && ['ACTUAL_PYQ','PYQ_REPEATED'].includes(q.source_type))}));
+    res.json({success:true,chapter:rows[0]?{subject_name:rows[0].subject_name,chapter_number:rows[0].chapter_number,chapter_name:rows[0].chapter_name}:null,questions:rows,target:10,selected:rows.length});
+  }catch(e){console.error('PASS Booster error:',e);res.status(500).json({success:false,error:'Unable to load chapter PASS booster'});}
+});
+
 // ================================================
 // STAGE 10 STEP 31 - REPAIR DUPLICATE / INVALID CHAPTERS
 // ================================================

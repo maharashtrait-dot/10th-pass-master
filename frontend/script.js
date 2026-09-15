@@ -433,14 +433,11 @@ async function loadChapters(subject) {
         else {
 
             chapters.forEach((chapter) => {
+                const wrap = document.createElement("div");
+                wrap.className = "chapter-card-wrap";
 
-                const chapterCard =
-                    document.createElement("button");
-
-
-                chapterCard.className =
-                    "subject-card";
-
+                const chapterCard = document.createElement("button");
+                chapterCard.className = "subject-card";
 
                 const totalQuestions = Number(chapter.active_questions || chapter.total_questions || 0);
                 const knownQuestions = Number(chapter.known_questions || 0);
@@ -450,32 +447,21 @@ async function loadChapters(subject) {
 
                 chapterCard.innerHTML = `
                     <span>
-                        <strong>Chapter ${chapter.chapter_number}: ${chapter.chapter_name}</strong>
-                        <br>
-                        <small>📚 ${totalQuestions} Questions &nbsp; | &nbsp; ✅ ${knownQuestions} Known &nbsp; | &nbsp; 🔄 ${revisionQuestions} Revision</small>
-                        <br>
+                        <strong>Chapter ${chapter.chapter_number}: ${chapter.chapter_name}</strong><br>
+                        <small>📚 ${totalQuestions} Questions &nbsp; | &nbsp; ✅ ${knownQuestions} Known &nbsp; | &nbsp; 🔄 ${revisionQuestions} Revision</small><br>
                         <small>📊 Chapter Progress: ${completion}%</small>
-                    </span>
-                `;
+                    </span>`;
+                chapterCard.addEventListener("click", () => loadQuestions(chapter, subject));
 
+                const passBtn=document.createElement("button");
+                passBtn.type="button";
+                passBtn.className="chapter-pass-booster";
+                passBtn.textContent="🎯 PASS Pack – 10 Must-Do Questions";
+                passBtn.addEventListener("click",(ev)=>{ev.preventDefault();ev.stopPropagation();loadChapterPassBooster(chapter,subject);});
 
-                chapterCard.addEventListener(
-                    "click",
-                    () => {
-
-                        loadQuestions(
-                            chapter,
-                            subject
-                        );
-
-                    }
-                );
-
-
-                container.appendChild(
-                    chapterCard
-                );
-
+                wrap.appendChild(chapterCard);
+                wrap.appendChild(passBtn);
+                container.appendChild(wrap);
             });
 
         }
@@ -503,6 +489,33 @@ async function loadChapters(subject) {
 
 }
 
+
+
+// ================================================
+// STEP 94 - CHAPTER PASS BOOSTER UI
+// ================================================
+async function loadChapterPassBooster(chapter,subject){
+  const container=document.getElementById('subjectsContainer'); if(!container)return;
+  container.innerHTML=`<button id="backPassBooster">← Back to Chapters</button><h2>🎯 PASS Pack – ${dailyPracticeEscape(subject.name)}</h2><p>⏳ Selecting the strongest existing questions from this chapter...</p>`;
+  try{
+    const r=await fetch(`${API_URL}/api/students/${currentStudentId||0}/pass-booster/${Number(chapter.id)}`);
+    const d=await r.json(); if(!r.ok||!d.success)throw new Error(d.error||'PASS Pack API error');
+    const qs=d.questions||[];
+    let html=`<button id="backPassBooster">← Back to ${dailyPracticeEscape(subject.name)} Chapters</button><h2>🎯 PASS Pack – Chapter ${dailyPracticeEscape(chapter.chapter_number)}: ${dailyPracticeEscape(chapter.chapter_name)}</h2><div class="question-box"><strong>PASS strategy:</strong> First solve yourself → check Hint → Easy Answer → Solution → mark Known/Revision. Verified PYQs are shown with 🏆.</div>`;
+    if(!qs.length){html+=`<div class="question-box">❌ या chapter मध्ये active questions उपलब्ध नाहीत.</div>`;container.innerHTML=html;document.getElementById('backPassBooster').onclick=()=>loadChapters(subject);return;}
+    html+=qs.map((q,i)=>{
+      const answer=q.easy_answer||q.answer||q.correct_answer||'';
+      const sol=typeof buildLocalSolution==='function'?buildLocalSolution(q):(q.solution||'');
+      const visual=(typeof window.renderVisualLearning==='function')?window.renderVisualLearning(q):'';
+      return `<div class="question-box pass-booster-question"><h3>${i+1}. ${q.verified_pyq?'🏆 ':''}${dailyPracticeEscape(q.question_text)}</h3><p>📖 Chapter ${dailyPracticeEscape(q.chapter_number)}: ${dailyPracticeEscape(q.chapter_name)} &nbsp; | &nbsp; ⭐ ${dailyPracticeEscape(q.marks||1)} marks</p>${q.hint?`<button class="pb-hint">💡 Hint</button><div class="pb-hidden">${dailyPracticeEscape(q.hint)}</div>`:''}<button class="pb-answer">📝 Easy Answer</button><div class="pb-hidden">${dailyPracticeEscape(answer||'Answer उपलब्ध नाही.')}</div><button class="pb-solution">🧩 Solution</button><div class="pb-hidden"><pre style="white-space:pre-wrap;font-family:inherit">${dailyPracticeEscape(sol)}</pre>${visual}</div><div style="margin-top:8px"><button class="pb-known" data-id="${Number(q.id)}">✅ I Know</button><button class="pb-revise" data-id="${Number(q.id)}">🔄 Revise</button></div></div>`;
+    }).join('');
+    container.innerHTML=html;
+    document.getElementById('backPassBooster').onclick=()=>loadChapters(subject);
+    container.querySelectorAll('.pb-hint,.pb-answer,.pb-solution').forEach(b=>b.addEventListener('click',()=>{const n=b.nextElementSibling;if(n)n.style.display=n.style.display==='block'?'none':'block';}));
+    container.querySelectorAll('.pb-known').forEach(b=>b.addEventListener('click',()=>saveProgress(Number(b.dataset.id),'known')));
+    container.querySelectorAll('.pb-revise').forEach(b=>b.addEventListener('click',()=>saveProgress(Number(b.dataset.id),'revision')));
+  }catch(e){container.innerHTML=`<button id="backPassBooster">← Back to Chapters</button><h2>🎯 PASS Pack</h2><p>❌ ${dailyPracticeEscape(e.message)}</p>`;document.getElementById('backPassBooster').onclick=()=>loadChapters(subject);}
+}
 
 // ================================================
 // SAVE QUESTION PROGRESS

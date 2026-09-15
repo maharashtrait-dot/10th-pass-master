@@ -38,3 +38,6 @@ button,input,select,textarea{font:inherit}
 .solution-step{padding:8px 10px;border-left:4px solid #888;margin:7px 0;background:#fff}
 .coverage-ok{font-weight:700}.coverage-gap{font-weight:700}
 @media(max-width:600px){.toolkit-grid{grid-template-columns:1fr}.toolkit-card{padding:12px}}
+
+/* STEP 94 - Chapter PASS Booster */
+.chapter-card-wrap{margin:8px 0 14px}.chapter-card-wrap .subject-card{width:100%;}.chapter-pass-booster{width:100%;margin-top:4px;padding:9px 12px;border:1px solid #1565c0;border-radius:9px;background:#f4f8ff;cursor:pointer;font-weight:700}.chapter-pass-booster:hover{filter:brightness(.97)}.pass-booster-question{margin:14px 0}.pb-hidden{display:none;margin:7px 0;padding:9px;border-radius:8px;background:#f7f7f7;border:1px solid #ddd}.pass-booster-question button{margin:4px 4px 4px 0}
