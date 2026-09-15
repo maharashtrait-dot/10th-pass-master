@@ -5175,6 +5175,75 @@ app.get('/api/admin/live-content-audit-v2', async (req, res) => {
     }
 });
 
+
+// ================================================
+// STEP 93 - LIVE PYQ COVERAGE + PASS-READY CONTENT COMPLETION
+// Read-only reporting. No question/chapter data is modified.
+// ================================================
+app.get('/api/admin/pass-content-completion-v1', async (req,res)=>{
+  try{
+    const r=await pool.query(`
+      SELECT s.id AS subject_id, s.name AS subject_name,
+             c.id AS chapter_id, c.chapter_number, c.chapter_name,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE)::int AS active_questions,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND COALESCE(TRIM(q.question_text),'')<>'')::int AS questions_ok,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND COALESCE(TRIM(q.easy_answer),'')<>'')::int AS answers_ok,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND COALESCE(TRIM(q.hint),'')<>'')::int AS hints_ok,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND COALESCE(TRIM(q.keywords),'')<>'')::int AS keywords_ok,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND q.difficulty IS NOT NULL AND TRIM(q.difficulty)<>'')::int AS difficulty_ok,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND q.pyq_verified=TRUE AND q.source_type IN ('ACTUAL_PYQ','PYQ_REPEATED'))::int AS verified_pyq,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND q.pyq_verified=TRUE AND q.source_type='PYQ_REPEATED')::int AS repeated_pyq,
+             COUNT(DISTINCT q.pyq_year) FILTER (WHERE q.is_active=TRUE AND q.pyq_verified=TRUE AND q.source_type IN ('ACTUAL_PYQ','PYQ_REPEATED') AND q.pyq_year IS NOT NULL)::int AS pyq_years
+      FROM subjects s
+      LEFT JOIN chapters c ON c.subject_id=s.id AND c.is_active=TRUE
+      LEFT JOIN questions q ON q.chapter_id=c.id
+      WHERE s.is_active=TRUE
+      GROUP BY s.id,s.name,c.id,c.chapter_number,c.chapter_name
+      ORDER BY s.name,c.chapter_number::text,c.id`);
+    const TARGET=20;
+    const rows=r.rows.map(x=>{
+      const total=Number(x.active_questions||0);
+      const core=Math.min(Number(x.questions_ok||0),Number(x.answers_ok||0),Number(x.hints_ok||0),Number(x.keywords_ok||0));
+      const answerable=Number(x.answers_ok||0);
+      const passReady=answerable>=Math.min(10,TARGET) && core>=Math.min(10,TARGET);
+      const fullReady=answerable>=TARGET && core>=TARGET;
+      const gaps=[];
+      if(total<TARGET) gaps.push(`Need ${TARGET-total} more active questions`);
+      if(Number(x.answers_ok)<Math.min(TARGET,total)) gaps.push(`${total-Number(x.answers_ok||0)} questions need answers`);
+      if(Number(x.hints_ok)<Math.min(TARGET,total)) gaps.push(`${total-Number(x.hints_ok||0)} questions need hints`);
+      if(Number(x.keywords_ok)<Math.min(TARGET,total)) gaps.push(`${total-Number(x.keywords_ok||0)} questions need keywords`);
+      if(Number(x.verified_pyq||0)===0) gaps.push('No verified PYQ in this chapter');
+      return {...x,pass_target_questions:TARGET,pass_ready:passReady,full_ready:fullReady,gaps};
+    });
+    const subjects={};
+    for(const x of rows){
+      const k=x.subject_name;
+      if(!subjects[k]) subjects[k]={subject_name:k,chapters:0,pass_ready_chapters:0,full_ready_chapters:0,active_questions:0,answers_ok:0,verified_pyq:0,repeated_pyq:0};
+      const a=subjects[k]; a.chapters++; a.pass_ready_chapters+=x.pass_ready?1:0; a.full_ready_chapters+=x.full_ready?1:0; a.active_questions+=Number(x.active_questions||0); a.answers_ok+=Number(x.answers_ok||0); a.verified_pyq+=Number(x.verified_pyq||0); a.repeated_pyq+=Number(x.repeated_pyq||0);
+    }
+    res.json({success:true,generated_at:new Date().toISOString(),target_questions_per_chapter:TARGET,rows,subjects:Object.values(subjects)});
+  }catch(e){console.error('PASS content completion error:',e);res.status(500).json({success:false,error:'Unable to load PASS content completion'});}
+});
+
+app.get('/api/admin/pyq-coverage-matrix-v1', async (req,res)=>{
+  try{
+    const years=[2025,2024,2023,2022,2021,2020];
+    const r=await pool.query(`
+      SELECT s.name AS subject_name,c.chapter_number,c.chapter_name,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND q.pyq_verified=TRUE AND q.source_type IN ('ACTUAL_PYQ','PYQ_REPEATED'))::int AS verified_pyq,
+             COUNT(q.id) FILTER (WHERE q.is_active=TRUE AND q.pyq_verified=TRUE AND q.source_type='PYQ_REPEATED')::int AS repeated_pyq,
+             ARRAY_AGG(DISTINCT q.pyq_year ORDER BY q.pyq_year) FILTER (WHERE q.is_active=TRUE AND q.pyq_verified=TRUE AND q.source_type IN ('ACTUAL_PYQ','PYQ_REPEATED') AND q.pyq_year IS NOT NULL) AS years_seen
+      FROM subjects s JOIN chapters c ON c.subject_id=s.id
+      LEFT JOIN questions q ON q.chapter_id=c.id
+      WHERE s.is_active=TRUE AND c.is_active=TRUE
+      GROUP BY s.name,c.chapter_number,c.chapter_name
+      ORDER BY s.name,c.chapter_number::text`);
+    const rows=r.rows.map(x=>{const seen=(x.years_seen||[]).map(Number);return {...x,years_seen:seen,missing_years:years.filter(y=>!seen.includes(y)),coverage_status:seen.length>=2?'MULTI-YEAR':seen.length===1?'ONE-YEAR':'NO-VERIFIED-PYQ'};});
+    const subjectSummary={}; for(const x of rows){const k=x.subject_name;if(!subjectSummary[k])subjectSummary[k]={subject_name:k,chapters:0,with_pyq:0,multi_year_chapters:0,verified_pyq:0,repeated_pyq:0};const a=subjectSummary[k];a.chapters++;a.with_pyq+=x.verified_pyq>0?1:0;a.multi_year_chapters+=x.coverage_status==='MULTI-YEAR'?1:0;a.verified_pyq+=Number(x.verified_pyq||0);a.repeated_pyq+=Number(x.repeated_pyq||0);}
+    res.json({success:true,years,generated_at:new Date().toISOString(),subjects:Object.values(subjectSummary),rows});
+  }catch(e){console.error('PYQ coverage matrix error:',e);res.status(500).json({success:false,error:'Unable to load PYQ coverage matrix'});}
+});
+
 // ================================================
 // STAGE 10 STEP 31 - REPAIR DUPLICATE / INVALID CHAPTERS
 // ================================================

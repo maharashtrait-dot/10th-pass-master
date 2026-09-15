@@ -2271,6 +2271,52 @@ async function importStep48Math1_2024(){
 document.getElementById('step48Import2024Math1Button')?.addEventListener('click',importStep48Math1_2024);
 
 
+// STEP 93 — PYQ COVERAGE + PASS-READY CONTENT COMPLETION
+function escPass(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+async function fetchJsonWithFallback(paths){
+  let last='';
+  for(const path of paths){
+    try{
+      const r=await fetch(`${API_URL}${path}${path.includes('?')?'&':'?'}ts=${Date.now()}`,{cache:'no-store'});
+      const ct=(r.headers.get('content-type')||'').toLowerCase();
+      if(ct.includes('application/json')){const d=await r.json(); if(r.ok&&d.success!==false)return d; last=d.error||`HTTP ${r.status}`;}
+      else {last=`HTTP ${r.status}`;}
+    }catch(e){last=e.message;}
+  }
+  throw new Error(last||'Live API unavailable');
+}
+async function runPassContentCompletion(){
+  const box=document.getElementById('passCompletionResults'); if(!box)return;
+  box.innerHTML='<div style="padding:12px;background:#eefaf5">⏳ Checking every active chapter and its live question content...</div>';
+  try{
+    const d=await fetchJsonWithFallback(['/api/admin/pass-content-completion-v1','/api/admin/content-progress']);
+    const rows=d.rows||d.chapters||[]; const subs=d.subjects||[]; const target=Number(d.target_questions_per_chapter||20);
+    let h='<div style="padding:14px;border:2px solid #0b7a53;background:#f7fffb"><h3>✅ PASS CONTENT REPORT</h3>';
+    if(d.target_questions_per_chapter)h+=`<p><strong>Chapter target:</strong> ${target} answer-ready questions &nbsp; <strong>Subjects:</strong> ${subs.length} &nbsp; <strong>Chapters:</strong> ${rows.length}</p>`;
+    h+='<h3>📚 Subject-wise</h3><div style="overflow:auto"><table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;background:#fff;min-width:900px"><tr><th>Subject</th><th>Chapters</th><th>PASS Ready</th><th>Full Ready</th><th>Active Q</th><th>Answers</th><th>Verified PYQ</th><th>Repeated PYQ</th></tr>';
+    subs.forEach(a=>h+=`<tr><td>${escPass(a.subject_name)}</td><td>${a.chapters||0}</td><td>${a.pass_ready_chapters??a.ready_chapters??0}</td><td>${a.full_ready_chapters??'-'}</td><td>${a.active_questions||0}</td><td>${a.answers_ok??'-'}</td><td>${a.verified_pyq??'-'}</td><td>${a.repeated_pyq??'-'}</td></tr>`); h+='</table></div>';
+    h+='<h3>⚠️ Chapter completion gaps</h3><div style="max-height:600px;overflow:auto"><table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;background:#fff;min-width:1200px"><tr><th>Subject</th><th>Chapter</th><th>Active Q</th><th>Answers</th><th>Hints</th><th>Keywords</th><th>Verified PYQ</th><th>Years</th><th>Status</th><th>Gaps</th></tr>';
+    rows.forEach(a=>{const status=a.full_ready?'🟢 FULL READY':a.pass_ready?'🟡 PASS READY':'🔴 NEEDS WORK'; h+=`<tr><td>${escPass(a.subject_name)}</td><td>${escPass(a.chapter_number)} — ${escPass(a.chapter_name)}</td><td>${a.active_questions||0}</td><td>${a.answers_ok||0}</td><td>${a.hints_ok||0}</td><td>${a.keywords_ok||0}</td><td>${a.verified_pyq||0}</td><td>${a.pyq_years||0}</td><td>${status}</td><td>${escPass((a.gaps||[]).join(' • '))}</td></tr>`;});
+    h+='</table></div><p><small>PASS READY means the chapter has at least 10 active answer/hint/keyword-ready questions. FULL READY means the 20-question chapter target is met. Verified PYQ counts include only verified ACTUAL_PYQ/PYQ_REPEATED records; no practice question is promoted to PYQ.</small></p></div>';
+    box.innerHTML=h;
+  }catch(e){box.innerHTML=`<div style="padding:12px;border:2px solid #b71c1c;background:#fff5f5"><strong>❌ ${escPass(e.message)}</strong><br>Render deploy may still be on an older backend. The report will work after the latest commit is deployed.</div>`;}
+}
+async function runPYQCoverageMatrix(){
+  const box=document.getElementById('passCompletionResults'); if(!box)return;
+  box.innerHTML='<div style="padding:12px;background:#eef5ff">⏳ Checking verified PYQ coverage chapter-by-chapter...</div>';
+  try{
+    const d=await fetchJsonWithFallback(['/api/admin/pyq-coverage-matrix-v1','/api/admin/pyq-year-coverage']);
+    const rows=d.rows||[]; const subs=d.subjects||[];
+    let h='<div style="padding:14px;border:2px solid #1565c0;background:#f7fbff"><h3>📚 VERIFIED PYQ COVERAGE MATRIX</h3>';
+    if(d.years)h+=`<p><strong>Years checked:</strong> ${d.years.join(', ')}</p>`;
+    h+='<div style="overflow:auto"><table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;background:#fff;min-width:900px"><tr><th>Subject</th><th>Chapters</th><th>Chapters with PYQ</th><th>Multi-year Chapters</th><th>Verified PYQ</th><th>Repeated PYQ</th></tr>';
+    subs.forEach(a=>h+=`<tr><td>${escPass(a.subject_name)}</td><td>${a.chapters||0}</td><td>${a.with_pyq||'-'}</td><td>${a.multi_year_chapters||'-'}</td><td>${a.verified_pyq||'-'}</td><td>${a.repeated_pyq||'-'}</td></tr>`);h+='</table></div>';
+    if(rows.length){h+='<h3>Chapter-level coverage</h3><div style="max-height:600px;overflow:auto"><table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;background:#fff;min-width:1000px"><tr><th>Subject</th><th>Chapter</th><th>Verified PYQ</th><th>Repeated</th><th>Years Seen</th><th>Status</th></tr>';rows.forEach(a=>h+=`<tr><td>${escPass(a.subject_name)}</td><td>${escPass(a.chapter_number)} — ${escPass(a.chapter_name)}</td><td>${a.verified_pyq||0}</td><td>${a.repeated_pyq||0}</td><td>${escPass((a.years_seen||[]).join(', '))}</td><td>${escPass(a.coverage_status)}</td></tr>`);h+='</table></div>';} else if(d.coverage){h+='<p>Year-level fallback loaded. Detailed chapter matrix will appear after the latest backend deploy.</p>';}h+='</div>';box.innerHTML=h;
+  }catch(e){box.innerHTML=`<div style="padding:12px;border:2px solid #b71c1c;background:#fff5f5"><strong>❌ ${escPass(e.message)}</strong></div>`;}
+}
+document.getElementById('passCompletionButton')?.addEventListener('click',runPassContentCompletion);
+document.getElementById('pyqMatrixButton')?.addEventListener('click',runPYQCoverageMatrix);
+
 // STEP 91 — LIVE QUESTION-BANK CONTENT COMPLETENESS AUDIT
 let latestContentAudit = null;
 function escAudit(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -2282,40 +2328,14 @@ async function runContentCompletenessAudit(){
   if(btn)btn.disabled=true;
   box.innerHTML='<div style="padding:12px;background:#fff8dc">⏳ Checking every active live question. Please wait...</div>';
   try{
-    let d=null;
-    // STEP 92: Prefer the dedicated live endpoint, but automatically fall back
-    // to the already-existing admin question endpoint. This keeps the audit
-    // usable even if Render is temporarily running an older backend build.
-    let r=await fetch(`${API_URL}/api/admin/live-content-audit-v2?ts=${Date.now()}`,{cache:'no-store'});
-    let contentType=(r.headers.get('content-type')||'').toLowerCase();
-    if(r.ok && contentType.includes('application/json')){
-      d=await r.json();
-      if(!d.success) d=null;
+    const r=await fetch(`${API_URL}/api/admin/live-content-audit-v2?ts=${Date.now()}`,{cache:'no-store'});
+    const contentType=(r.headers.get('content-type')||'').toLowerCase();
+    if(!contentType.includes('application/json')){
+      const raw=await r.text();
+      throw new Error(`Audit API returned non-JSON response (${r.status}). Check the live server/API URL. ${raw.slice(0,80)}`);
     }
-    if(!d){
-      const fallback=await fetch(`${API_URL}/api/admin/questions?status=active&ts=${Date.now()}`,{cache:'no-store'});
-      const fallbackType=(fallback.headers.get('content-type')||'').toLowerCase();
-      if(!fallback.ok || !fallbackType.includes('application/json')){
-        const raw=await fallback.text();
-        throw new Error(`Live question-bank API unavailable (${fallback.status}). ${raw.slice(0,100)}`);
-      }
-      const rows=await fallback.json();
-      const list=Array.isArray(rows)?rows:[];
-      const audited=list.map(q=>{
-        const text=String(q.question_text||'').trim(), answer=String(q.easy_answer||'').trim(), hint=String(q.hint||'').trim(), keywords=String(q.keywords||'').trim();
-        const t=`${q.subject_name||''} ${text} ${keywords}`.toLowerCase();
-        const visual=/mean|median|mode|statistics|frequency|data|probability|coordinate|linear equation|quadratic|circle|pythagoras|trigonometry|electric|voltage|resistance|chemical|gravitation|democracy|election|history|latitude|longitude|map|diagram|figure|graph|table|process|cycle/.test(t);
-        let representation='NOT_REQUIRED';
-        if(/graph|coordinate|straight line|plot|statistics|frequency|data|histogram|bar graph|pie chart|table/.test(t)) representation='GRAPH/TABLE';
-        else if(/diagram|figure|label|structure|circuit|ray|triangle|circle|map|flow|process|cycle/.test(t)) representation='DIAGRAM';
-        else if(/formula|equation|calculate|find the value|solve|probability|mean|median|mode|resistance|voltage|current|power|energy|heat|density|speed|work|area|volume/.test(t)) representation='FORMULA';
-        const issues=[]; if(!text)issues.push('QUESTION'); if(!answer)issues.push('ANSWER'); if(!hint)issues.push('HINT'); if(!keywords)issues.push('KEYWORDS'); if(!q.difficulty)issues.push('DIFFICULTY'); if(!answer)issues.push('SOLUTION');
-        return {id:q.id,subject_name:q.subject_name,chapter_number:q.chapter_number,chapter_name:q.chapter_name,question_text:text,marks:q.marks,pyq_year:q.pyq_year,question_paper_id:q.question_paper_id,answer_status:answer?'OK':'MISSING',solution_status:answer?(hint?'GENERATABLE':'BASIC_GENERATABLE'):'MISSING',visual_status:visual?'FALLBACK/ENGINE':'FALLBACK/ENGINE',visual_type:visual?'Topic visual':'General learning visual',representation_type:representation,representation_status:representation==='NOT_REQUIRED'?'NOT_REQUIRED':representation==='FORMULA'?'FORMULA_EXPECTED':representation==='DIAGRAM'?'DIAGRAM_EXPECTED':'GRAPH_TABLE_EXPECTED',hint_status:hint?'OK':'MISSING',keywords_status:keywords?'OK':'MISSING',difficulty_status:q.difficulty?'OK':'MISSING',issue_count:issues.length,issues,audit_status:issues.length?'CHECK':'READY'};
-      });
-      const summary={total_questions:audited.length,ready_questions:audited.filter(x=>x.audit_status==='READY').length,check_questions:audited.filter(x=>x.audit_status==='CHECK').length,missing_answer:audited.filter(x=>x.answer_status==='MISSING').length,solution_missing:audited.filter(x=>x.solution_status==='MISSING').length,solution_generatable:audited.filter(x=>x.solution_status!=='MISSING').length,missing_hint:audited.filter(x=>x.hint_status==='MISSING').length,missing_keywords:audited.filter(x=>x.keywords_status==='MISSING').length,missing_difficulty:audited.filter(x=>x.difficulty_status==='MISSING').length,formula_expected:audited.filter(x=>x.representation_type==='FORMULA').length,diagram_expected:audited.filter(x=>x.representation_type==='DIAGRAM').length,graph_table_expected:audited.filter(x=>x.representation_type==='GRAPH/TABLE').length,visual_engine_coverage:audited.length};
-      const subjects={}; for(const x of audited){const k=x.subject_name||'Unknown'; if(!subjects[k])subjects[k]={subject_name:k,total:0,ready:0,check:0,missing_answer:0,solution_missing:0,formula_expected:0,diagram_expected:0,graph_table_expected:0}; const a=subjects[k]; a.total++; if(x.audit_status==='READY')a.ready++;else a.check++; if(x.answer_status==='MISSING')a.missing_answer++; if(x.solution_status==='MISSING')a.solution_missing++; if(x.representation_type==='FORMULA')a.formula_expected++; if(x.representation_type==='DIAGRAM')a.diagram_expected++; if(x.representation_type==='GRAPH/TABLE')a.graph_table_expected++;}
-      d={success:true,generated_at:new Date().toISOString(),summary,subjects:Object.values(subjects),rows:audited,fallback:true};
-    }
+    const d=await r.json();
+    if(!r.ok||!d.success)throw new Error(d.error||'Audit failed');
     latestContentAudit=d;
     const x=d.summary||{};
     const pct=x.total_questions?Math.round((x.ready_questions/x.total_questions)*100):0;
