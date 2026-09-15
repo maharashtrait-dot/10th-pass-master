@@ -38,6 +38,12 @@ function setupMainNavigation() {
         });
     });
 
+    document.getElementById("navStudyToolkitButton")?.addEventListener("click", () => {
+        if (typeof window.renderRapidStudyToolkit === "function") window.renderRapidStudyToolkit();
+        closeMainNavigation();
+        setTimeout(() => document.getElementById("subjectsContainer")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    });
+
     document.querySelectorAll("[data-nav-target]").forEach(button => {
         button.addEventListener("click", () => {
             const target = document.getElementById(button.dataset.navTarget);
