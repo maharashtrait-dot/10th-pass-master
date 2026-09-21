@@ -4893,3 +4893,39 @@ document.getElementById("passChallengeButton")?.addEventListener("click", loadPa
   if(document.body) obs.observe(document.body,{childList:true,subtree:true});
   window.moveStudentLoginToTop=moveStudentLoginToTop;
 })();
+
+
+/* STEP 99 — Force Student Login + Registration to the FIRST visible position */
+(function(){
+  const sels=[
+    '#loginSection','#loginCard','#loginContainer','#authSection','#authContainer',
+    '#studentLogin','#studentLoginSection','#studentAuth',
+    '#registrationSection','#registerSection','#registrationCard','#registerCard',
+    '.login-section','.login-card','.login-container','.auth-section','.auth-container',
+    '.registration-section','.registration-card','.register-section','.register-card',
+    '[data-page="login"]','[data-page="register"]'
+  ];
+  function moveAuthFirst(){
+    const top=document.getElementById('authFirstTop99');
+    if(!top)return;
+    let nodes=[];
+    sels.forEach(s=>{try{document.querySelectorAll(s).forEach(e=>{if(!nodes.includes(e))nodes.push(e)})}catch(_){}});
+    if(!nodes.length){
+      document.querySelectorAll('section,main,div').forEach(e=>{
+        const t=(e.innerText||'').slice(0,1000);
+        if(/student\s*(login|registration)|login\s*(student|register)|register\s*(student|now)|sign\s*up/i.test(t)
+          && e.children.length) nodes.push(e);
+      });
+    }
+    nodes.forEach(e=>{
+      if(e===top||top.contains(e))return;
+      top.appendChild(e);
+      e.style.display='block';
+      e.style.width='100%';
+    });
+  }
+  function run(){moveAuthFirst();setTimeout(moveAuthFirst,300);setTimeout(moveAuthFirst,1200);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+  new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});
+  window.forceAuthFirst=moveAuthFirst;
+})();
