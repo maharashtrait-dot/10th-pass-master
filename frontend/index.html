@@ -41,9 +41,39 @@
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="visual-learning.css">
+<style>
+
+/* STEP 98 — Student Login always at the top */
+.student-login-top{
+  order:-9999 !important;
+  width:100% !important;
+  position:relative;
+  z-index:20;
+}
+.student-login-top .login-card,
+.student-login-top .login-section,
+.student-login-top #loginSection,
+.student-login-top #loginCard{
+  width:100%;
+}
+body{
+  scroll-behavior:smooth;
+}
+#studentLoginTop{
+  width:100%;
+  order:-9999 !important;
+  margin:0 0 14px 0;
+}
+#studentLoginTop + *{ }
+@media (max-width:700px){
+  #studentLoginTop{margin-bottom:10px}
+}
+
+</style>
 </head>
 
 <body>
+<div id="studentLoginTop" aria-label="Student Login Top Area"></div>
 <div class="container">
 
     <header class="hero-header">

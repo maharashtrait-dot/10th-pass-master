@@ -4862,3 +4862,34 @@ async function loadPassChallenge() {
 }
 
 document.getElementById("passChallengeButton")?.addEventListener("click", loadPassChallenge);
+
+
+/* STEP 98 — Keep Student Login at the very top of the public/student page */
+(function(){
+  function moveStudentLoginToTop(){
+    const top=document.getElementById('studentLoginTop');
+    if(!top) return;
+    const selectors=[
+      '#loginSection','#loginCard','.login-card','.login-section',
+      '[id*="login" i]','[class*="login" i]'
+    ];
+    let target=null;
+    for(const sel of selectors){
+      const els=document.querySelectorAll(sel);
+      for(const el of els){
+        if(el && el.id!=='studentLoginTop' && /login|sign.?in/i.test((el.id||'')+' '+(el.className||''))){
+          target=el; break;
+        }
+      }
+      if(target) break;
+    }
+    if(target && target.parentElement!==top){
+      top.appendChild(target);
+      target.classList.add('student-login-top');
+    }
+  }
+  document.addEventListener('DOMContentLoaded',moveStudentLoginToTop);
+  const obs=new MutationObserver(()=>moveStudentLoginToTop());
+  if(document.body) obs.observe(document.body,{childList:true,subtree:true});
+  window.moveStudentLoginToTop=moveStudentLoginToTop;
+})();
