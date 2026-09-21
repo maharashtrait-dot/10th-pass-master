@@ -41,45 +41,53 @@
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="visual-learning.css">
-<style>
 
-/* STEP 98 — Student Login always at the top */
-.student-login-top{
-  order:-9999 !important;
-  width:100% !important;
+<style id="step100-top-login">
+/* STEP 100 — Student Login / Registration is the first page section */
+#studentLoginAbsoluteTop{
+  width:100%;
+  margin:0 0 12px 0;
+  padding:0;
   position:relative;
-  z-index:20;
+  z-index:1000;
 }
-.student-login-top .login-card,
-.student-login-top .login-section,
-.student-login-top #loginSection,
-.student-login-top #loginCard{
-  width:100%;
+#studentLoginAbsoluteTop #studentSection{
+  margin:0 0 12px 0;
 }
-body{
-  scroll-behavior:smooth;
-}
-#studentLoginTop{
-  width:100%;
-  order:-9999 !important;
-  margin:0 0 14px 0;
-}
-#studentLoginTop + *{ }
 @media (max-width:700px){
-  #studentLoginTop{margin-bottom:10px}
+  #studentLoginAbsoluteTop{margin-bottom:8px}
 }
-
-</style>
-<style>
-/* STEP 99 — authentication first */
-#authFirstTop99{display:block!important;width:100%!important;margin:0!important;padding:12px 0!important;position:relative!important;z-index:9999!important}
-#authFirstTop99>*{display:block!important;width:100%!important}
 </style>
 </head>
 
 <body>
-<div id="authFirstTop99"></div>
-<div id="studentLoginTop" aria-label="Student Login Top Area"></div>
+<div id="studentLoginAbsoluteTop">
+<section id="studentSection">
+        <h2>👨‍🎓 Student Login / Registration</h2>
+
+        <input
+            type="text"
+            id="studentName"
+            placeholder="Enter your name"
+        >
+
+        <input
+            type="tel"
+            id="studentMobile"
+            placeholder="Enter 10 digit mobile number"
+            maxlength="10"
+        >
+
+        <br><br>
+
+        <button id="startStudyButton">
+            🚀 Start Studying
+        </button>
+
+        <p id="studentMessage"></p>
+    </section>
+</div>
+
 <div class="container">
 
     <header class="hero-header">
@@ -170,30 +178,6 @@ body{
         </div>
     </section>
 
-    <section id="studentSection">
-        <h2>👨‍🎓 Student Login / Registration</h2>
-
-        <input
-            type="text"
-            id="studentName"
-            placeholder="Enter your name"
-        >
-
-        <input
-            type="tel"
-            id="studentMobile"
-            placeholder="Enter 10 digit mobile number"
-            maxlength="10"
-        >
-
-        <br><br>
-
-        <button id="startStudyButton">
-            🚀 Start Studying
-        </button>
-
-        <p id="studentMessage"></p>
-    </section>
 
     <section class="quick-tools">
         <div>
